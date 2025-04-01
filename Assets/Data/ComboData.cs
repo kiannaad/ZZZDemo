@@ -6,12 +6,19 @@ using UnityEngine.Serialization;
 public enum comboType
 {
     LightCombo,
-    SkillCombo
+    SkillCombo,
+    FinishSkillCombo
+}
+
+public enum nameType
+{
+    AnBi
 }
 
 [System.Serializable]
 public class ComboData
 {
+    public nameType nameType;
     public string comboName;
     public comboType comboType;
     public float coldTime;
@@ -20,4 +27,6 @@ public class ComboData
 
      public AudioClipType sweaponSound;
      public AudioClipType CharacterSounds;
+
+     public float ShakeForce;
 }

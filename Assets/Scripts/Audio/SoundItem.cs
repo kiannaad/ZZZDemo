@@ -29,11 +29,16 @@ public class SoundItem : MonoBehaviour
 
     private void Awake()
     {
-        if (applyList) _audioClip = _audioClipData.GetRandomAudioClip();
+        if (applyList)
+        {
+            _audioClip = _audioClipData.GetRandomAudioClip();
+        }
+        else
+        {
+            isReadonPlay = false;
+        }
         
         _audioSource = GetComponent<AudioSource>();
-        
-        
     }
 
     private void OnEnable()
@@ -44,38 +49,32 @@ public class SoundItem : MonoBehaviour
     private void Start()
     {
         _audioSource.clip = _audioClip;
-        StopPlay();
+        gameObject.SetActive(false);
     }
 
     private void Update()
     {
         if (!_audioSource.isPlaying)
         {
-            StopPlay();
+            gameObject.SetActive(false);
         }
     }
 
-    /*private void OnDisable()
+    private void OnDisable()
     {
-        StopPlay();
-    }*/
+        _audioSource.Stop();
+    }
 
     public void Spawm()
     {
-        if (!_audioSource.isPlaying)
+        if (_audioSource.isPlaying)
+            _audioSource.Stop();
+        
+        if (isReadonPlay)
         {
-            if (isReadonPlay)
-            {
-                ReadonClip();
-            }
-            _audioSource.Play();
+            ReadonClip();
         }
-    }
-    
-
-    private void StopPlay()
-    {
-        gameObject.SetActive(false);
+        _audioSource.Play();
     }
 
     private void ReadonClip()

@@ -13,11 +13,13 @@ public class IdleState : GroundState
     {
         base.Enter();
         player.SetMovementZero();
+        player.recenteringSetting.DisableForHorizontalRecentering();
     }
 
     public override void Update()
     {
         base.Update();
+       // Debug.Log("Idle");
         player.UpdateVerticalRecenter(new Vector3(player.MoveInput.x, 0f, player.MoveInput.z));
         if (!player.notMoveInput())
         {

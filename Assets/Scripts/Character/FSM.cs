@@ -11,6 +11,7 @@ public enum StateAction
     turnBack,
     ATK,
     Skill,
+    FinishSkill,
     None,
     size
 }
@@ -29,6 +30,7 @@ public interface IState
     public void RemoveInputAction();
 
     public void OnAnimationEnterEvent();
+    public void OnAnimationUpdateEvent();
     public void OnAnimationExitEvent();
 }
 
@@ -63,7 +65,8 @@ public class FSM
     {
         set
         {
-            if (curstate == value) return;
+            //攻击状态需要重复进入，状态重复进入是需求，意味着需要重复利用，如果出现这个情况应该清除多余的状态转换。
+            //if (curstate == value) return;
 
             prestate = curstate;
             curstate = value;

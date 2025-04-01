@@ -9,6 +9,5 @@ public class ResuableData_Move
 
     public float MoveSpeed;
 
-    public float BufferTime_MoveToIdle;
-    public float BufferTime_MoveToAttacking;
+   
 }

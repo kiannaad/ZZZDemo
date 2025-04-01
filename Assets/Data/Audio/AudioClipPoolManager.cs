@@ -1,77 +1,75 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public enum AudioClipType
+/// <summary>
+/// 采用接口统一池子
+/// </summary>
+public interface IAudioPool
 {
-    foot,
-    footback,
-    Wind,
-    Attack1,
-    Attack2,
-    Attack3,
-    Attack4,
-    Attack5,
-    
-    安比入鞘,
-    安比一阶段说话,
-    安比二阶段说话,
-    安比三阶段说话,
-    安比四阶段说话,
-    安比技能
+    public List<GameObject> clipItem{get;set;}
+    public Characterlist poolType { get; set; }
 }
 
-public enum PoolType
+/// <summary>
+/// 分池来区分不同角色的音频
+/// </summary>
+[System.Serializable]
+public class AudioPool : IAudioPool
 {
-    AnBi_AudioPool
+    ///public List<SoundItem> soundItems = new List<SoundItem>();
+    [field:SerializeField] public List<GameObject> clipItem { get; set; }
+    [field:SerializeField] public Characterlist poolType { get; set; }
 }
 
+/// <summary>
+/// 缓存并且来使用
+/// </summary>
 public class AudioClipPoolManager : MonoSigleton<AudioClipPoolManager>
-{
-    [SerializeField]private AnBi_AudioPool AnBi_AudioPool;
+{ 
+    [SerializeField]private AudioPool AnBi_Pool;
 
     private List<IAudioPool> _audioPools = new List<IAudioPool>();
-    private Dictionary<string, Dictionary<AudioClipType, Queue<SoundItem>>> Pool = new Dictionary<string, Dictionary<AudioClipType, Queue<SoundItem>>>();
+    private Dictionary<string, Dictionary<AudioClipType, SoundItem>> Pool = new Dictionary<string, Dictionary<AudioClipType, SoundItem>>();
 
-    private void Awake()
+    public override void Awake()
     {
-        _audioPools.Add(AnBi_AudioPool);
+        base.Awake();
+        _audioPools.Add(AnBi_Pool);
         
         Init();
-    }
-
-    private void Start()
-    {
-       
     }
 
     private void Init()
     {
         foreach (var item in _audioPools)
         {
-            string name = item.GetType().Name;
+            string name = item.poolType.ToString();
             if (!Pool.ContainsKey(name))
             {
-                Pool.Add(name, new Dictionary<AudioClipType, Queue<SoundItem>>());
+                Pool.Add(name, new Dictionary<AudioClipType, SoundItem>());
             }
-            foreach (var st in item.clipItem)
+            foreach (var obj in item.clipItem)
             {
+                var st = obj.GetComponent<SoundItem>();
                 if (!Pool[name].ContainsKey(st.audioType))
                 {
-                    Pool[name].Add(st.audioType, new Queue<SoundItem>());
+                    Pool[name].Add(st.audioType, null);
                 }
                 
-                var obj = Instantiate(st.gameObject, transform);
+                var obj2 = Instantiate(obj, transform);
                 
-                obj.SetActive(false);
-                Pool[name][st.audioType].Enqueue(obj.transform.GetComponent<SoundItem>());
-               // Debug.Log(name + " : " + st.audioType + " pool");
+                Pool[name][st.audioType] = obj2.GetComponent<SoundItem>();
+                obj2.SetActive(false);
+                Debug.Log(name + " : " + st.audioType + " pool");
             }
         }
     }
 
-    public SoundItem PlayAudioClip(PoolType poolType, AudioClipType clipType)
+    public SoundItem PlayAudioClip(Characterlist poolType, AudioClipType clipType)
     {
         string name = poolType.ToString();
         if (!Pool.ContainsKey(name))
@@ -86,10 +84,9 @@ public class AudioClipPoolManager : MonoSigleton<AudioClipPoolManager>
             return null;
         }
 
-        var st = Pool[name][clipType].Dequeue();
+        var st = Pool[name][clipType];
         st.gameObject.SetActive(true);
         
-        Pool[name][clipType].Enqueue(st);
         return st;
     }
 }

@@ -18,13 +18,13 @@ public class GroundState : IState
     
     public  virtual void Enter()
     {
-        //Debug.Log($"Enter {State}");
+       // Debug.Log($"Enter {State}");
         AddInputAction();
     }
 
     public  virtual void Update()
     {
-        //Debug.Log($"Update {State}");
+       // Debug.Log($"Update {State}");
     }
 
     public virtual void FixedUpdate()
@@ -33,36 +33,42 @@ public class GroundState : IState
 
     public virtual void Exit()
     {
-        //Debug.Log($"Exit {State}");
+      //  Debug.Log($"Exit {State}");
         RemoveInputAction();
     }
 
     public virtual void AddInputAction()
     {
-        player.PlayerActions.Move.started += OnMoveStarted;
-        player.PlayerActions.Move.canceled += OnMoveCanceled;
-        player.PlayerActions.Dash.started += OnDashStarted;
-        player.PlayerActions.Dash.canceled += OnDashCanceled;
-        player.PlayerActions.LeftMouse.started += OnMouseStarted;
-        player.PlayerActions.Skill.started += OnSkillStarted;
+        player.playerActions.Move.started += OnMoveStarted;
+        player.playerActions.Move.canceled += OnMoveCanceled;
+        player.playerActions.Dash.started += OnDashStarted;
+        player.playerActions.Dash.canceled += OnDashCanceled;
+        player.playerActions.LeftMouse.started += OnLeftMouseStarted;
+        player.playerActions.Skill.started += OnSkillStarted;
+        player.playerActions.FinishSkill.started += OnFinishSkillStarted;
         
-        player.PlayerActions.Pointer.started -= UnRegisterBuffer_MoveToIdle;
+        player.playerActions.Pointer.started -= UnRegisterBuffer_MoveToIdle;
 
-        player.PlayerActions.Pointer.performed += context => player.UpdateMoveRecenter(new Vector2(player.MoveInput.x, player.MoveInput.z));
-        player.PlayerActions.Move.performed += context => player.UpdateMoveRecenter(context.ReadValue<Vector2>());
+        player.playerActions.Pointer.performed += context => player.UpdateMoveRecenter(new Vector2(player.MoveInput.x, player.MoveInput.z));
+        player.playerActions.Move.performed += context => player.UpdateMoveRecenter(context.ReadValue<Vector2>());
     }
 
     public virtual void RemoveInputAction()
     {
-        player.PlayerActions.Move.started -= OnMoveStarted;
-        player.PlayerActions.Move.canceled -= OnMoveCanceled;
-        player.PlayerActions.Dash.started -= OnDashStarted;
-        player.PlayerActions.Dash.canceled -= OnDashCanceled;
-        player.PlayerActions.LeftMouse.started -= OnMouseStarted;
-        player.PlayerActions.Skill.started -= OnSkillStarted;
+        player.playerActions.Move.started -= OnMoveStarted;
+        player.playerActions.Move.canceled -= OnMoveCanceled;
+        player.playerActions.Dash.started -= OnDashStarted;
+        player.playerActions.Dash.canceled -= OnDashCanceled;
+        player.playerActions.LeftMouse.started -= OnLeftMouseStarted;
+        player.playerActions.Skill.started -= OnSkillStarted;
+        player.playerActions.FinishSkill.started -= OnFinishSkillStarted;
     }
 
     public virtual void OnAnimationEnterEvent()
+    {
+    }
+
+    public virtual void OnAnimationUpdateEvent()
     {
     }
 
@@ -96,7 +102,7 @@ public class GroundState : IState
         }
     }
 
-    public virtual void OnMouseStarted(InputAction.CallbackContext context)
+    public virtual void OnLeftMouseStarted(InputAction.CallbackContext context)
     {
         Buffer_MoveToAttack();
     }
@@ -106,23 +112,28 @@ public class GroundState : IState
         player.stateMachine.State = StateAction.Skill;
     }
 
+    public virtual void OnFinishSkillStarted(InputAction.CallbackContext context)
+    {
+        player.stateMachine.State = StateAction.FinishSkill;
+    }
+
     public virtual void Buffer_MoveToIdle()
     {
-        _gameTimer1 = TimerManager.Instance.GetTimer(player.ResuableDataMove.BufferTime_MoveToIdle, () =>
+        _gameTimer1 = TimerManager.Instance.GetTimer(player.content.moveData.BufferTime_MoveToIdle, () =>
         {
             player.stateMachine.State = StateAction.idle;
             player.animator.SetBool(player.aniHarsh.HasInputID, false);
         });
        
-        player.PlayerActions.Move.started += UnRegisterBuffer_MoveToIdle;
+        player.playerActions.Move.started += UnRegisterBuffer_MoveToIdle;
     }
 
     public virtual void Buffer_MoveToAttack()
     {
-        _gameTimer2 = TimerManager.Instance.GetTimer(player.ResuableDataMove.BufferTime_MoveToAttacking, () =>
+        _gameTimer2 = TimerManager.Instance.GetTimer(player.content.moveData.BufferTime_MoveToAttacking, () =>
         {
+            //Debug.Log("To Atk");
             player.stateMachine.State = StateAction.ATK;
-            player.ATK();
         });
     }
     

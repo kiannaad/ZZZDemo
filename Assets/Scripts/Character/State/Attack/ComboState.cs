@@ -9,17 +9,26 @@ public class ComboState : GroundState
     {
     }
 
+    public override void Enter()
+    {
+        base.Enter();
+        player.recenteringSetting.DisableForHorizontalRecentering();
+        player.recenteringSetting.DisableForVerticalRecentering();
+    }
+    
     public override void Update()
     {
         base.Update();
-        //Debug.Log($"canRotate: {player.ResuableDataAttack.canRotate}");
-        if (player.ResuableDataAttack.canRotate)
-            player.UpdateRotation(player.content.AttackData.attackRotationTime);
+        //Debug.Log("ATK");
+        player.UpdateRotation(player.content.AttackData.attackRotationTime, true, player.CheckEnemyIsValid());
     }
+    
     public override void OnMoveStarted(InputAction.CallbackContext context)
     {
         player.animator.SetBool(player.aniHarsh.HasInputID, true);
+        
         if (player.ResuableDataAttack.canMoveInterrupt == false) return;
+        
         player.stateMachine.State = player.moveAction;
     }
     
@@ -50,10 +59,21 @@ public class ComboState : GroundState
         }
     }
 
-    public override void OnMouseStarted(InputAction.CallbackContext context)
+    public override void OnLeftMouseStarted(InputAction.CallbackContext context)
     {
         if (player.ResuableDataAttack.canInput == false) return;
 
         Buffer_MoveToAttack();
+    }
+    
+    public override void OnAnimationEnterEvent()
+    {
+        //Debug.Log("Enter");
+        player.AttackAni_EnterSet();
+    }
+
+    public override void OnAnimationUpdateEvent()
+    {
+        player.AttackAni_UpdateSet();
     }
 }

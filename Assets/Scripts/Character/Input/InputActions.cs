@@ -11,11 +11,12 @@ public class InputActions : MonoSigleton<InputActions>
     {
         var playerInputActions = new GameInput();
         _playerInputActions = playerInputActions.PlayerInput;
+        
     }
 
     private void Start()
     {
-        EnablePlayerInput();
+        
     }
     
     public void EnablePlayerInput() => _playerInputActions.Enable();

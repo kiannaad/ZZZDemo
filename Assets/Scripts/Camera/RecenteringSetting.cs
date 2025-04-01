@@ -12,7 +12,7 @@ public class RecenteringSetting
         private float defaultWaitTime = 0f;
         private float defaultRecenterTime = 0.5f;
 
-        private float cancelMaxAngle = 5f;
+        private float cancelMaxAngle = 10f;
         private float cancelMinAngle = 0f;
         
         public void EnableHorizontalRecentering() => _cinemachinePov.m_HorizontalRecentering.m_enabled = true;

@@ -41,6 +41,10 @@ public class moveNullState : IState
     {
     }
 
+    public void OnAnimationUpdateEvent()
+    {
+    }
+
     public void OnAnimationExitEvent()
     {
     }

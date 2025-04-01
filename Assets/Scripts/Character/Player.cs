@@ -15,15 +15,22 @@ public class Player : MonoBehaviour
     public CharacterSOData content;
     public PlayerController controller;
 
-    public PoolType poolType;
+    public Characterlist poolType;
     
     private void Awake()
     {
+        var playerInputActions = new GameInput();
+        PlayerActions = playerInputActions.PlayerInput;
+        EnablePlayerInput();
         animator = GetComponent<Animator>();
-        PlayerActions = InputActions.Instance._playerInputActions;
         controller = new PlayerController(content, this);
     }
-    
+
+    private void Start()
+    {
+        controller.stateMachine.State = StateAction.idle;
+    }
+
     private void Update()
     {
         controller.Update();
@@ -34,5 +41,7 @@ public class Player : MonoBehaviour
        controller.FixedUpdate();
     }
 
+    public void EnablePlayerInput() => PlayerActions.Enable();
     
+    public void DisablePlayerInput() => PlayerActions.Disable();
 }

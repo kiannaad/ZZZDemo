@@ -10,25 +10,28 @@ public class OnAnimationTransitionEvent : StateMachineBehaviour
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        //Debug.Log("Entered OnAnimationTransitionEvent");
         if (player == null)
         {
             player = animator.gameObject.GetComponent<Player>();
         }
 
         FSM fsm = player.controller.stateMachine;
-        fsm.states[(int)fsm.State].OnAnimationEnterEvent();
+        fsm.states[(int)fsm.State].OnAnimationEnterEvent(); 
+        //Debug.Log(fsm.State.ToString());
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
-    //override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    //{
-    //    
-    //}
+    public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        FSM fsm = player.controller.stateMachine;
+        fsm.states[(int)fsm.State].OnAnimationUpdateEvent();
+    }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        Debug.Log("Exit");
+       // Debug.Log("Exit");
         FSM fsm = player.controller.stateMachine;
         fsm.states[(int)fsm.State].OnAnimationExitEvent();
     }

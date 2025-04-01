@@ -35,7 +35,7 @@ public class MonoSigleton<T> : MonoBehaviour where T : MonoBehaviour
 
         if (isGlobal)
         {
-            DontDestroyOnLoad(this);
+            DontDestroyOnLoad(this.gameObject);
         }
     }
 }
