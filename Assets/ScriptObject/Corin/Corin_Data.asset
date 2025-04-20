@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7302ce40a3682b47a2b2cd85b964264, type: 3}
+  m_Name: Corin_Data
+  m_EditorClassIdentifier: 
+  <moveData>k__BackingField:
+    walkSpeed: 2
+    runSpeed: 3
+    moveTime: 0.1
+    BufferTime_MoveToIdle: 0.14
+    BufferTime_MoveToAttacking: 0.1
+    BufferTime_DashToMove: 0.3
+  <AttackData>k__BackingField:
+    attackRotationTime: 0.01
+    LightCombos:
+    - nameType: 1
+      comboName: Corin_Normal1
+      comboType: 0
+      coldTime: 0.5
+      attackDistance: 0
+      damage: 1
+      sweaponSound: 31
+      CharacterSounds: 36
+      HitSounds: 44
+      HitVFX: 2
+      ShakeForce: 0.2
+    - nameType: 1
+      comboName: Corin_Normal2
+      comboType: 0
+      coldTime: 0.4
+      attackDistance: 0
+      damage: 2
+      sweaponSound: 32
+      CharacterSounds: 37
+      HitSounds: 45
+      HitVFX: 2
+      ShakeForce: 0.2
+    - nameType: 1
+      comboName: Corin_Normal3
+      comboType: 0
+      coldTime: 0.5
+      attackDistance: 0
+      damage: 3
+      sweaponSound: 33
+      CharacterSounds: 38
+      HitSounds: 46
+      HitVFX: 2
+      ShakeForce: 0.2
+    - nameType: 1
+      comboName: Corin_Normal4
+      comboType: 0
+      coldTime: 0.3
+      attackDistance: 0
+      damage: 4
+      sweaponSound: 34
+      CharacterSounds: 39
+      HitSounds: 47
+      HitVFX: 2
+      ShakeForce: 0.2
+    SkillCombo:
+      nameType: 1
+      comboName: Corin_SkillStart1
+      comboType: 1
+      coldTime: 0
+      attackDistance: 0
+      damage: 10
+      sweaponSound: 15
+      CharacterSounds: 42
+      HitSounds: 49
+      HitVFX: 2
+      ShakeForce: 0
+    FinishSKillCombo:
+      nameType: 1
+      comboName: Corin_FinishSkillStart1
+      comboType: 2
+      coldTime: 0
+      attackDistance: 0
+      damage: 10
+      sweaponSound: 16
+      CharacterSounds: 43
+      HitSounds: 50
+      HitVFX: 2
+      ShakeForce: 0
+    enemyMask:
+      serializedVersion: 2
+      m_Bits: 64
+    <CheckDistance>k__BackingField: 10
+  <sideRecenterData>k__BackingField:
+  - minAngle: 0
+    maxAngle: 80
+    waitTime: 1
+    recenterTime: 2
+  - minAngle: 70
+    maxAngle: 90
+    waitTime: 0
+    recenterTime: 0.5
+  <backRecenterData>k__BackingField:
+  - minAngle: 70
+    maxAngle: 90
+    waitTime: 2
+    recenterTime: 3

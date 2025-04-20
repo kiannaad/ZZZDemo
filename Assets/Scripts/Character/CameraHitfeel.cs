@@ -24,13 +24,13 @@ public class CameraHitfeel : MonoSigleton<CameraHitfeel>
     {
         if (playerAnimator == null)
         {
-            Debug.Log("PlayerAnimator is null");
+            //Debug.Log("PlayerAnimator is null");
             return;
         }
 
         if (EnemyAnimator == null)
         {
-            Debug.Log("EnemyAnimator is null");
+            //Debug.Log("EnemyAnimator is null");
             return;
         }
 

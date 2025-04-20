@@ -1,25 +1,76 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public partial class PlayerController
 {
-    public SoundItem curAttackSound;
+    public Action atk;
+    public Action skill_atk;
+    public Action finalskill_atk;
+
+    //public bool isSpecialATK_tap = false;
+    public bool isSpecialatk_hold = false;
+
+    public float ATKReset_ColdTime;
+    
+    public void SetForResetColdTime(float time) => ATKReset_ColdTime = time;
+    
+    private void InitAtkAction()
+    {
+        RegisterATK(ATK);
+        RegisterSkill(SkillATK);
+        RegisterFinalSkill(FinishSkillATK);
+    }
+
+    public void ChangeATKAction(Action action, float time, float damage, AudioClipType type, HitType vfxType, bool isSpecialHold = false)
+    {
+        RegisterATK(action);
+        SetForResetColdTime(time);
+        this.isSpecialatk_hold = isSpecialHold;
+        UpdatehitResource(damage, type, vfxType, 0.01f);
+    }
+
+    public void atkCallback() => atk?.Invoke();
+    public void skillAtkCallback() => skill_atk?.Invoke();
+    public void finalskillAtkCallback() => finalskill_atk?.Invoke();
+    
+    public void RegisterATK(Action atk) => this.atk = atk;
+    public void ReverseATK() => RegisterATK(ATK);
+    public void RegisterSkill(Action skill) => this.skill_atk += skill;
+    public void RegisterFinalSkill(Action finalskill) => this.finalskill_atk += finalskill;
+    public void UnregisterSkill(Action skill) => this.skill_atk -= skill;
+    public void UnregisterFinalSkill(Action finalskill) => this.finalskill_atk -= finalskill;
+    
+    public List<SoundItem> curAttackSound = new List<SoundItem>();
+    private struct hitResource
+    {
+        public float damage;
+        public AudioClipType hitSFX;
+        public HitType hitVFX;
+        public float ShakeForce;
+    }
+
+    private hitResource hit;
     
     /// <summary>
     /// 连击采用的数据应用封装
     /// </summary>
     public void ATK()
     {
+        //Debug.Log("ATK");
+        curAttackSound?.Clear();
         ComboData data = ResuableDataAttack.comboData[ResuableDataAttack.comboCount];
         string name = data.comboName;
-        UpdateDamageInfo(player.transform.forward, data.damage, data.ShakeForce);
         animator.CrossFade(name, 0.111f);
-
-        curAttackSound = AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, data.sweaponSound);
-        AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, data.CharacterSounds);
+        UpdatehitResource(data.damage, data.HitSounds, data.HitVFX, data.ShakeForce);
+       // Debug.Log(data.comboName);
+        curAttackSound.Add(AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, data.sweaponSound));
+        curAttackSound.Add(AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, data.CharacterSounds));
         
         ATKSet();
+        AddComboCount();
+        SetForResetColdTime(data.coldTime);
     }
 
     /// <summary>
@@ -27,14 +78,16 @@ public partial class PlayerController
     /// </summary>
     public void SkillATK()
     {
+        curAttackSound?.Clear();
         ComboData data = ResuableDataAttack.skillData;
         string name = data.comboName;
-        UpdateDamageInfo(player.transform.forward, data.damage, data.ShakeForce);
         animator.CrossFade(name, 0.111f);
-
-        AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, data.sweaponSound);
-        AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, data.CharacterSounds);
+        UpdatehitResource(data.damage, data.HitSounds, data.HitVFX, data.ShakeForce);
+        curAttackSound.Add(AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, data.sweaponSound));
+        curAttackSound.Add(AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, data.CharacterSounds));
        
+        ATKSet();
+        SetForResetColdTime(data.coldTime);
     }
 
     /// <summary>
@@ -42,13 +95,26 @@ public partial class PlayerController
     /// </summary>
     public void FinishSkillATK()
     {
+        curAttackSound?.Clear();
         ComboData data = ResuableDataAttack.finishSkillData;
         string name = data.comboName;
-        UpdateDamageInfo(player.transform.forward, data.damage, data.ShakeForce);
         animator.CrossFade(name, 0.111f);
-        
+        UpdatehitResource(data.damage, data.HitSounds, data.HitVFX, data.ShakeForce);
         //AudioClipPoolManager.Instance.PlayAudioClip(PoolType.AnBi_AudioPool, data.sweaponSound);
         //AudioClipPoolManager.Instance.PlayAudioClip(PoolType.AnBi_AudioPool, data.CharacterSounds);
+        
+        ATKSet();
+        SetForResetColdTime(data.coldTime);
+    }
+
+    public void SoundClear()
+    {
+        if (curAttackSound.Count == 0) return;
+        foreach (var item in curAttackSound)
+        {
+            if (item != null)
+                item.gameObject.SetActive(false);
+        }
     }
 
     /// <summary>
@@ -58,7 +124,23 @@ public partial class PlayerController
     {
         ResuableDataAttack.canInput = false;
         ResuableDataAttack.canMoveInterrupt = false;
-        AddComboCount();
+        //Debug.Log("ATKSet");
+    }
+
+    private void UpdatehitResource(float damage, AudioClipType hitSFX, HitType hitVFX, float shakeForce)
+    {
+        hit.hitSFX = hitSFX;
+        hit.hitVFX = hitVFX;
+        hit.damage = damage;
+        hit.ShakeForce = shakeForce;
+    }
+
+    public void PlayHitResource(Transform transform)
+    {
+        AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, hit.hitSFX);
+        VFXManager.Instance.PlayHitVFXItem(player.poolType, hit.hitVFX, transform);
+        CameraHitfeel.Instance.ShakeCamera(hit.ShakeForce);
+        CameraHitfeel.Instance.PS(0.01f);
     }
 
     /// <summary>
@@ -82,11 +164,12 @@ public partial class PlayerController
         ResuableDataAttack.comboCount = 0;
         ResuableDataAttack.canInput = true;
         ResuableDataAttack.canMoveInterrupt = true;
+        ReverseATK();
     }
 
     public void AttackAni_EnterSet()
     {
-        ResetComboData();
+        //ReverseATK();
     }
 
     public void AttackAni_UpdateSet()
@@ -95,7 +178,7 @@ public partial class PlayerController
         {
             stateMachine.State = StateAction.walk;
             animator.SetBool(aniHarsh.HasInputID, true);
-            curAttackSound?.gameObject.SetActive(false);
+            SoundClear();
         }
     }
 
@@ -160,19 +243,7 @@ public partial class PlayerController
             }
         }
     }
-
+    
     #endregion
-
-    /// <summary>
-    /// 更新伤害数据info
-    /// </summary>
-    /// <param name="direction"></param>
-    /// <param name="damage"></param>
-    /// <param name="shakeForce"></param>
-    private void UpdateDamageInfo(Vector2 direction, float damage, float shakeForce)
-    {
-        ResuableDataAttack.damageInfo.damage = damage;
-        ResuableDataAttack.damageInfo.direction = direction;
-        ResuableDataAttack.damageInfo.shakeForce = shakeForce;
-    }
+   
 }

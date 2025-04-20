@@ -47,7 +47,7 @@
                     "id": "e80ce163-7518-43b6-8ea4-cc37054e2fd0",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Hold(duration=0.3,pressPoint=0.5),Tap(duration=0.2,pressPoint=0.5)",
                     "initialStateCheck": false
                 },
                 {
@@ -56,13 +56,22 @@
                     "id": "8bf9dc19-baa6-49c4-97c8-d1600f27fb9f",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Hold(duration=0.4,pressPoint=0.5),Press",
                     "initialStateCheck": false
                 },
                 {
                     "name": "FinishSkill",
                     "type": "Button",
                     "id": "f398b89e-c1b4-49ad-bece-5548d3a6ab00",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Switch",
+                    "type": "Button",
+                    "id": "7065c8b7-bbdc-4599-941d-ecb94cd1515f",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -188,6 +197,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "FinishSkill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4a0d97ba-0e75-44f3-a818-c2313dd6995c",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Switch",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

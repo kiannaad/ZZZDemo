@@ -19,6 +19,7 @@ public class moveNullState : IState
 
     public void Update()
     {
+        Debug.Log("moveNullState");
     }
 
     public void FixedUpdate()

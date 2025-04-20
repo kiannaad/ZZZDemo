@@ -5,21 +5,22 @@ using UnityEngine;
 
 public class InputActions : MonoSigleton<InputActions>
 {
-    public GameInput.PlayerInputActions _playerInputActions;
+    /*//public GameInput.PlayerInputActions _playerInputActions;
+    public GameInput _gameInput;
 
     private void Awake()
     {
-        var playerInputActions = new GameInput();
-        _playerInputActions = playerInputActions.PlayerInput;
-        
+        _gameInput = new GameInput();
+        _playerInputActions = _gameInput.PlayerInput;
+        EnablePlayerInput();
     }
 
-    private void Start()
-    {
-        
-    }
-    
     public void EnablePlayerInput() => _playerInputActions.Enable();
     
     public void DisablePlayerInput() => _playerInputActions.Disable();
+
+    public void ClearAllCallBack()
+    {
+        
+    }*/
 }

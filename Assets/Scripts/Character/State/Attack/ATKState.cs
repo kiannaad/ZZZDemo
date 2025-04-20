@@ -11,7 +11,8 @@ public class ATKState : ComboState
     public override void Enter()
     {
         base.Enter();
-        player.ATK();
+        //Debug.Log("ATK State Enter");
+        player.atkCallback();
         player.recenteringSetting.DisableForHorizontalRecentering();
         player.recenteringSetting.DisableForVerticalRecentering();
     }

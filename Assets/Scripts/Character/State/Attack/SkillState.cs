@@ -10,7 +10,7 @@ public class SkillState : ComboState
 
     public override void Enter()
     {
-        player.SkillATK();
+        player.skillAtkCallback();
     }
     
     

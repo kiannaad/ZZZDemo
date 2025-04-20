@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Interactions;
 using UnityEngine.InputSystem.Utilities;
 
 public class GroundState : IState
@@ -10,6 +12,7 @@ public class GroundState : IState
     public PlayerController player { get; set; }
     private GameTimer _gameTimer1;
     private GameTimer _gameTimer2;
+    private GameTimer _gameTimer3;
     public GroundState(StateAction state, PlayerController player)
     {
         State = state;
@@ -18,13 +21,13 @@ public class GroundState : IState
     
     public  virtual void Enter()
     {
-       // Debug.Log($"Enter {State}");
+       //Debug.Log($"{player.player.poolType.ToString()} Enter {State}");
         AddInputAction();
     }
 
     public  virtual void Update()
     {
-       // Debug.Log($"Update {State}");
+       //Debug.Log($"{player.player.poolType.ToString()} Update {State}");
     }
 
     public virtual void FixedUpdate()
@@ -33,35 +36,35 @@ public class GroundState : IState
 
     public virtual void Exit()
     {
-      //  Debug.Log($"Exit {State}");
+        //Debug.Log($"{player.player.poolType.ToString()} Exit {State}");
         RemoveInputAction();
     }
 
     public virtual void AddInputAction()
     {
-        player.playerActions.Move.started += OnMoveStarted;
-        player.playerActions.Move.canceled += OnMoveCanceled;
-        player.playerActions.Dash.started += OnDashStarted;
-        player.playerActions.Dash.canceled += OnDashCanceled;
-        player.playerActions.LeftMouse.started += OnLeftMouseStarted;
-        player.playerActions.Skill.started += OnSkillStarted;
-        player.playerActions.FinishSkill.started += OnFinishSkillStarted;
+        player.playerInputActions.Move.started += OnMoveStarted;
+        player.playerInputActions.Move.canceled += OnMoveCanceled;
+        player.playerInputActions.Dash.started += OnDashStarted;
+        player.playerInputActions.Dash.canceled += OnDashCanceled;
+        player.playerInputActions.LeftMouse.performed += OnLeftMousePerformed;
+        player.playerInputActions.Skill.started += OnSkillStarted;
+        player.playerInputActions.FinishSkill.started += OnFinishSkillStarted;
         
-        player.playerActions.Pointer.started -= UnRegisterBuffer_MoveToIdle;
+        player.playerInputActions.Pointer.started -= UnRegisterBuffer_MoveToIdle;
 
-        player.playerActions.Pointer.performed += context => player.UpdateMoveRecenter(new Vector2(player.MoveInput.x, player.MoveInput.z));
-        player.playerActions.Move.performed += context => player.UpdateMoveRecenter(context.ReadValue<Vector2>());
+        player.playerInputActions.Pointer.performed += context => player.UpdateMoveRecenter(new Vector2(player.MoveInput.x, player.MoveInput.z));
+        player.playerInputActions.Move.performed += context => player.UpdateMoveRecenter(context.ReadValue<Vector2>());
     }
 
     public virtual void RemoveInputAction()
     {
-        player.playerActions.Move.started -= OnMoveStarted;
-        player.playerActions.Move.canceled -= OnMoveCanceled;
-        player.playerActions.Dash.started -= OnDashStarted;
-        player.playerActions.Dash.canceled -= OnDashCanceled;
-        player.playerActions.LeftMouse.started -= OnLeftMouseStarted;
-        player.playerActions.Skill.started -= OnSkillStarted;
-        player.playerActions.FinishSkill.started -= OnFinishSkillStarted;
+        player.playerInputActions.Move.started -= OnMoveStarted;
+        player.playerInputActions.Move.canceled -= OnMoveCanceled;
+        player.playerInputActions.Dash.started -= OnDashStarted;
+        player.playerInputActions.Dash.canceled -= OnDashCanceled;
+        player.playerInputActions.LeftMouse.performed -= OnLeftMousePerformed;
+        player.playerInputActions.Skill.started -= OnSkillStarted;
+        player.playerInputActions.FinishSkill.started -= OnFinishSkillStarted;
     }
 
     public virtual void OnAnimationEnterEvent()
@@ -102,9 +105,16 @@ public class GroundState : IState
         }
     }
 
-    public virtual void OnLeftMouseStarted(InputAction.CallbackContext context)
+    public virtual void OnLeftMousePerformed(InputAction.CallbackContext context)
     {
-        Buffer_MoveToAttack();
+       if (context.interaction is TapInteraction)
+       {
+           Buffer_MoveToAttack();
+       }
+       else if (context.interaction is HoldInteraction && player.isSpecialatk_hold)
+       {
+           Buffer_MoveToAttack();
+       }
     }
 
     public virtual void OnSkillStarted(InputAction.CallbackContext context)
@@ -125,7 +135,7 @@ public class GroundState : IState
             player.animator.SetBool(player.aniHarsh.HasInputID, false);
         });
        
-        player.playerActions.Move.started += UnRegisterBuffer_MoveToIdle;
+        player.playerInputActions.Move.started += UnRegisterBuffer_MoveToIdle;
     }
 
     public virtual void Buffer_MoveToAttack()
@@ -134,6 +144,14 @@ public class GroundState : IState
         {
             //Debug.Log("To Atk");
             player.stateMachine.State = StateAction.ATK;
+        });
+    }
+
+    public virtual void Buffer_DashToMove()
+    {
+        _gameTimer3 = TimerManager.Instance.GetTimer(player.content.moveData.BufferTime_DashToMove, () =>
+        {
+            player.stateMachine.State = StateAction.run;
         });
     }
     

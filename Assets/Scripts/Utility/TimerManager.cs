@@ -44,6 +44,8 @@ public class TimerManager : MonoSigleton<TimerManager>
    /// <param name="gameTimer"></param>
    public void UnRigisterTimer(GameTimer gameTimer)
    {
+       if (gameTimer == null) return;
+       
        if (gameTimer._timerStation != TimerStation.isWorking) return;
        
        PushPool(gameTimer);
@@ -72,6 +74,8 @@ public class TimerManager : MonoSigleton<TimerManager>
    /// <param name="gameTimer"></param>
    private void PushPool(GameTimer gameTimer)
    {
+       if (gameTimer == null) return;
+       
        gameTimer.InitTimer();
        workTimers.Remove(gameTimer);
        noWorkTimers.Enqueue(gameTimer);

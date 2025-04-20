@@ -11,7 +11,7 @@ using UnityEngine.Serialization;
 public interface IAudioPool
 {
     public List<GameObject> clipItem{get;set;}
-    public Characterlist poolType { get; set; }
+    public Character_Name poolType { get; set; }
 }
 
 /// <summary>
@@ -22,7 +22,7 @@ public class AudioPool : IAudioPool
 {
     ///public List<SoundItem> soundItems = new List<SoundItem>();
     [field:SerializeField] public List<GameObject> clipItem { get; set; }
-    [field:SerializeField] public Characterlist poolType { get; set; }
+    [field:SerializeField] public Character_Name poolType { get; set; }
 }
 
 /// <summary>
@@ -30,7 +30,10 @@ public class AudioPool : IAudioPool
 /// </summary>
 public class AudioClipPoolManager : MonoSigleton<AudioClipPoolManager>
 { 
-    [SerializeField]private AudioPool AnBi_Pool;
+    [SerializeField] private AudioPool AnBi_Pool;
+    [SerializeField] private AudioPool Corin_Pool;
+    [SerializeField] private AudioPool Enemy_Pool;
+    
 
     private List<IAudioPool> _audioPools = new List<IAudioPool>();
     private Dictionary<string, Dictionary<AudioClipType, SoundItem>> Pool = new Dictionary<string, Dictionary<AudioClipType, SoundItem>>();
@@ -39,7 +42,10 @@ public class AudioClipPoolManager : MonoSigleton<AudioClipPoolManager>
     {
         base.Awake();
         _audioPools.Add(AnBi_Pool);
+        _audioPools.Add(Enemy_Pool);
+        _audioPools.Add(Corin_Pool);
         
+        ValidatePools();
         Init();
     }
 
@@ -64,12 +70,26 @@ public class AudioClipPoolManager : MonoSigleton<AudioClipPoolManager>
                 
                 Pool[name][st.audioType] = obj2.GetComponent<SoundItem>();
                 obj2.SetActive(false);
-                Debug.Log(name + " : " + st.audioType + " pool");
+                //Debug.Log(name + " : " + st.audioType + " pool");
             }
         }
     }
+    
+    private void ValidatePools()
+    {
+        var typeSet = new HashSet<Character_Name>();
+        foreach (var pool in _audioPools)
+        {
+            if (typeSet.Contains(pool.poolType))
+            {
+                Debug.LogError($"重复的PoolType配置: {pool.poolType}");
+                continue;
+            }
+            typeSet.Add(pool.poolType);
+        }
+    }
 
-    public SoundItem PlayAudioClip(Characterlist poolType, AudioClipType clipType)
+    public SoundItem PlayAudioClip(Character_Name poolType, AudioClipType clipType)
     {
         string name = poolType.ToString();
         if (!Pool.ContainsKey(name))

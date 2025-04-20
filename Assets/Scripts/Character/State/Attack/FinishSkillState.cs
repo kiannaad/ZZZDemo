@@ -11,7 +11,7 @@ public class FinishSkillState : ComboState
     public override void Enter()
     {
         Debug.Log("Finish Skill Enter");
-        player.FinishSkillATK();
+        player.finalskillAtkCallback();
         SwitchCamera.Instance.ImmediateSwitchToCamera(player.ResuableDataAttack.finishSkillData.nameType, player.ResuableDataAttack.finishSkillData.comboType);
     }
 

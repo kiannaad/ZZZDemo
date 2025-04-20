@@ -11,7 +11,8 @@ public partial class PlayerController
 {
     public FSM stateMachine;
     public Player player;
-    
+    public GameInput.PlayerInputActions playerInputActions;
+    public IStatus status;
     
     public ResuableData_Move ResuableDataMove;
     public CharacterSOData content;
@@ -25,7 +26,7 @@ public partial class PlayerController
     public CinemachineVirtualCamera vcam;
     public Animator animator;
     
-    public GameInput.PlayerInputActions playerActions;
+    //public GameInput.PlayerInputActions playerActions;
     public Vector3 _curMoveInput;
     
     public Vector3 MoveInput{get; private set;}
@@ -36,7 +37,7 @@ public partial class PlayerController
     public void SetMovementZero() => animator.SetFloat(aniHarsh.MovementID, 0f);
     public void MoveToggle() => moveAction = moveAction == StateAction.walk ? StateAction.run : StateAction.walk;
     public bool notMoveInput() => MoveInput.x == 0 && MoveInput.z == 0;
-    private void GetInput() => MoveInput = new Vector3(playerActions.Move.ReadValue<Vector2>().x, 0, playerActions.Move.ReadValue<Vector2>().y);
+    private void GetInput() => MoveInput = new Vector3(playerInputActions.Move.ReadValue<Vector2>().x, 0, playerInputActions.Move.ReadValue<Vector2>().y);
     
     public PlayerController(CharacterSOData content, Player _player)
     {
@@ -45,6 +46,8 @@ public partial class PlayerController
         this.content = content;
         player = _player;
         vcam = _player.vcam;
+        playerInputActions = _player.inputActions;
+        this.status = _player.status;
         
         stateMachine = new FSM();
         ResuableDataMove = new ResuableData_Move();
@@ -58,7 +61,7 @@ public partial class PlayerController
         
         cam = player.cam;
         animator = player.animator;
-        this.playerActions = player.PlayerActions;
+        //this.playerActions = InputActions.Instance._playerInputActions;
         
         stateMachine.AddState(new IdleState(this));
         stateMachine.AddState(new walkState(this));
@@ -69,17 +72,29 @@ public partial class PlayerController
         stateMachine.AddState(new ATKState(this));
         stateMachine.AddState(new SkillState(this));
         stateMachine.AddState(new FinishSkillState(this));
-    
+        stateMachine.AddState(new HitState(this));
         
+        stateMachine.State = StateAction.idle;
+        InitAtkAction();
     }
+
+   
 
     public void Update()
     {
         GetInput();
         stateMachine.Update();
         CheckEnemyInDistance();
-        //Debug.Log("CanInput" + ResuableDataAttack.canInput);
-        //Debug.Log(ResuableDataAttack.comboCount);
+       
+        if (ATKReset_ColdTime > 0 && ResuableDataAttack.canInput)
+        {
+            ATKReset_ColdTime -= Time.deltaTime;
+        }
+
+        if (ATKReset_ColdTime <= 0)
+        {
+            ResetComboData();
+        }
     }
 
     public void FixedUpdate()
@@ -105,6 +120,8 @@ public partial class PlayerController
         
         animator.SetFloat(aniHarsh.MovementID, TargetToSpeed);
     }
+
+    public void Hited() => animator.CrossFadeInFixedTime("Hit_H_Front", 0.14f);
     
     public Vector3 GetInputDirection() => Quaternion.Euler(0f, GetInputRotation(MoveInput), 0f) * Vector3.forward;
 
@@ -283,5 +300,5 @@ public partial class PlayerController
     #endregion
 
     public void PlayWindAudio() =>
-        AudioClipPoolManager.Instance.PlayAudioClip(Characterlist.AnBi, AudioClipType.Wind);
+        AudioClipPoolManager.Instance.PlayAudioClip(Character_Name.AnBi, AudioClipType.Wind);
 }

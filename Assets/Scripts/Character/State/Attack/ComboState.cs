@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Interactions;
 
 public class ComboState : GroundState
 {
@@ -29,6 +30,7 @@ public class ComboState : GroundState
         
         if (player.ResuableDataAttack.canMoveInterrupt == false) return;
         
+        player.SoundClear();
         player.stateMachine.State = player.moveAction;
     }
     
@@ -44,10 +46,8 @@ public class ComboState : GroundState
 
     public override void OnDashStarted(InputAction.CallbackContext context)
     {
-        
         player.stateMachine.State = StateAction.dash;
-        player.curAttackSound.gameObject.SetActive(false);
-        player.ResetComboData();
+        player.SoundClear();
     }
 
     public override void OnDashCanceled(InputAction.CallbackContext context)
@@ -59,11 +59,18 @@ public class ComboState : GroundState
         }
     }
 
-    public override void OnLeftMouseStarted(InputAction.CallbackContext context)
+    public override void OnLeftMousePerformed(InputAction.CallbackContext context)
     {
         if (player.ResuableDataAttack.canInput == false) return;
 
-        Buffer_MoveToAttack();
+        if (context.interaction is TapInteraction)
+        {
+            Buffer_MoveToAttack();
+        }
+        else if (context.interaction is HoldInteraction && player.isSpecialatk_hold)
+        {
+            Buffer_MoveToAttack();
+        }
     }
     
     public override void OnAnimationEnterEvent()

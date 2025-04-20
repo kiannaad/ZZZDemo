@@ -12,7 +12,8 @@ public enum comboType
 
 public enum nameType
 {
-    AnBi
+    AnBi,
+    Corin
 }
 
 [System.Serializable]
@@ -27,6 +28,8 @@ public class ComboData
 
      public AudioClipType sweaponSound;
      public AudioClipType CharacterSounds;
+     public AudioClipType HitSounds;
+     public HitType HitVFX;
 
      public float ShakeForce;
 }

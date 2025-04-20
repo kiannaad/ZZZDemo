@@ -12,6 +12,7 @@ public enum StateAction
     ATK,
     Skill,
     FinishSkill,
+    Hit,
     None,
     size
 }

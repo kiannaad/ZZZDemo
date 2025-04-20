@@ -27,4 +27,9 @@ public class DashState : GroundState
         base.Update();
         player.CheckForTurnBack();
     }
+    
+    public override void OnMoveStarted(InputAction.CallbackContext context)
+    {
+        Buffer_DashToMove();
+    }
 }

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1750740871940964306}
   - component: {fileID: 6519376176893670453}
   m_Layer: 0
-  m_Name: Foot
+  m_Name: "\u811A\u6B65\u58F06"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,10 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43be00594c6eedb42a88f621488d454d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  applyList: 1
+  applyList: 0
   isReadonPlay: 0
-  _audioClipData: {fileID: 11400000, guid: b25615e2ce27cce449e90daf42d2535a, type: 2}
-  _audioClip: {fileID: 0}
+  _audioClipData: {fileID: 0}
+  _audioClip: {fileID: 8300000, guid: a11786c3647ce5448acffeebd20cecf2, type: 3}
   audioType: 0
 --- !u!82 &6519376176893670453
 AudioSource:
@@ -64,7 +64,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 0.8
+  m_Pitch: 0.5
   Loop: 0
   Mute: 0
   Spatialize: 0

@@ -69148,6 +69148,15 @@ AnimationClip:
         outWeight: 0
       - serializedVersion: 3
         time: 0.73333335
+        value: 1
+        inSlope: Infinity
+        outSlope: Infinity
+        tangentMode: 103
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.75
         value: 0
         inSlope: Infinity
         outSlope: Infinity
@@ -314416,6 +314425,15 @@ AnimationClip:
         outWeight: 0
       - serializedVersion: 3
         time: 0.73333335
+        value: 1
+        inSlope: Infinity
+        outSlope: Infinity
+        tangentMode: 103
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.75
         value: 0
         inSlope: Infinity
         outSlope: Infinity
@@ -440760,7 +440778,7 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.75
+  - time: 0.8
     functionName: SetForAttackCanInput
     data: 
     objectReferenceParameter: {fileID: 0}

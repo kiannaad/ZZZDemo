@@ -6,6 +6,7 @@ using UnityEngine;
 public class VFXItem : MonoBehaviour
 {
     public ParticleSystem ps;
+    public Action OnFinished;
 
     public void Awake()
     {
@@ -22,6 +23,7 @@ public class VFXItem : MonoBehaviour
         if (!ps.isPlaying)
         {
             gameObject.SetActive(false);
+            OnFinished?.Invoke();
         }
     }
 
@@ -30,9 +32,13 @@ public class VFXItem : MonoBehaviour
         ps.Stop();
     }
 
-    public void Spawm()
+    public void Spawn(Transform parent)
     {
-       // Debug.Log("Spawm");
+        if (parent != null)
+        {
+            gameObject.transform.SetParent(parent, false);
+            gameObject.transform.localPosition = new Vector3(0, parent.localPosition.y + 1.5f, 0);
+        }
         if (ps.isPlaying)
         {
             gameObject.SetActive(false);

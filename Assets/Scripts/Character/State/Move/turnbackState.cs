@@ -17,8 +17,7 @@ public class turnbackState : MovementState
 
     public override void Update()
     {
-        base.Update();
-        //Debug.Log("TurnBack State");
+        player.UpdateRotation(0.01f);
     }
 
     public override void OnAnimationEnterEvent()

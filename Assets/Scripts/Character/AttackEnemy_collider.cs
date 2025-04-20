@@ -16,10 +16,9 @@ public class AttackEnemy_collider : MonoBehaviour
     {
         if (other.transform.CompareTag("Enemy"))
         {
-           // Debug.Log(other.transform.name);
-            damageInfo info = _player.controller.ResuableDataAttack.damageInfo;
-            CameraHitfeel.Instance.ShakeCamera(info.shakeForce);
-            GameManager.Instance.HurtProcess(info, other.gameObject);
+            Action<Transform> action = (t) => _player.controller.PlayHitResource(t);
+            DamageManager.Instance.AddDamage(new damageInfo(_player.gameObject, other.gameObject, 
+                2f,  _player.transform.forward, 1, action));
         }
     }
 }

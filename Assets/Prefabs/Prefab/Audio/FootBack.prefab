@@ -49,7 +49,7 @@ MonoBehaviour:
   isReadonPlay: 0
   _audioClipData: {fileID: 11400000, guid: 22e7ea95473615c4198b47df65502451, type: 2}
   _audioClip: {fileID: 0}
-  audioType: 1
+  audioType: 2
 --- !u!82 &8749684921830555822
 AudioSource:
   m_ObjectHideFlags: 0

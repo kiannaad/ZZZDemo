@@ -11,4 +11,5 @@ public class MoveData
     
     public float BufferTime_MoveToIdle;
     public float BufferTime_MoveToAttacking;
+    public float BufferTime_DashToMove;
 }
