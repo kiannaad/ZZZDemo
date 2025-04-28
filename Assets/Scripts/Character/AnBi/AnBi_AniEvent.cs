@@ -22,7 +22,9 @@ public class AnBi_AniEvent : MonoBehaviour
         player.gameObject.SetActive(false);
         player.DisableSwitching();
     }
-
+    
+    public void StartFinishCamera() => SwitchCamera.Instance.ImmediateSwitchToCamera(player.controller.ResuableDataAttack.finishSkillData.nameType, player.controller.ResuableDataAttack.finishSkillData.comboType);
+    public void EndFinishCamera() => SwitchCamera.Instance.UnImmediateSwitchToCamera(player.controller.ResuableDataAttack.finishSkillData.nameType, player.controller.ResuableDataAttack.finishSkillData.comboType);
     public void EnableInvisible() => status.EnableInvincibility();
     public void DisableInvisible() => status.DisableInvincibility();
 

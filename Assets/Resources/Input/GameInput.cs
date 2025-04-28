@@ -234,6 +234,54 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""QTEInput"",
+            ""id"": ""f4736be4-80b4-44c8-a9b0-5f98f061dbd0"",
+            ""actions"": [
+                {
+                    ""name"": ""leftMouse"",
+                    ""type"": ""Button"",
+                    ""id"": ""56d649ea-8a01-4b33-828d-73e09b767675"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""rightMouse"",
+                    ""type"": ""Button"",
+                    ""id"": ""020f7d11-5e5c-4a85-8322-b49c853030a4"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""a9eec89b-6d48-4b4a-a3ff-d28877659c54"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""leftMouse"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9af64569-c4e3-46a7-a72a-2eb35f9b4254"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""rightMouse"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -248,6 +296,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_PlayerInput_Skill = m_PlayerInput.FindAction("Skill", throwIfNotFound: true);
         m_PlayerInput_FinishSkill = m_PlayerInput.FindAction("FinishSkill", throwIfNotFound: true);
         m_PlayerInput_Switch = m_PlayerInput.FindAction("Switch", throwIfNotFound: true);
+        // QTEInput
+        m_QTEInput = asset.FindActionMap("QTEInput", throwIfNotFound: true);
+        m_QTEInput_leftMouse = m_QTEInput.FindAction("leftMouse", throwIfNotFound: true);
+        m_QTEInput_rightMouse = m_QTEInput.FindAction("rightMouse", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -407,6 +459,60 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         }
     }
     public PlayerInputActions @PlayerInput => new PlayerInputActions(this);
+
+    // QTEInput
+    private readonly InputActionMap m_QTEInput;
+    private List<IQTEInputActions> m_QTEInputActionsCallbackInterfaces = new List<IQTEInputActions>();
+    private readonly InputAction m_QTEInput_leftMouse;
+    private readonly InputAction m_QTEInput_rightMouse;
+    public struct QTEInputActions
+    {
+        private @GameInput m_Wrapper;
+        public QTEInputActions(@GameInput wrapper) { m_Wrapper = wrapper; }
+        public InputAction @leftMouse => m_Wrapper.m_QTEInput_leftMouse;
+        public InputAction @rightMouse => m_Wrapper.m_QTEInput_rightMouse;
+        public InputActionMap Get() { return m_Wrapper.m_QTEInput; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(QTEInputActions set) { return set.Get(); }
+        public void AddCallbacks(IQTEInputActions instance)
+        {
+            if (instance == null || m_Wrapper.m_QTEInputActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_QTEInputActionsCallbackInterfaces.Add(instance);
+            @leftMouse.started += instance.OnLeftMouse;
+            @leftMouse.performed += instance.OnLeftMouse;
+            @leftMouse.canceled += instance.OnLeftMouse;
+            @rightMouse.started += instance.OnRightMouse;
+            @rightMouse.performed += instance.OnRightMouse;
+            @rightMouse.canceled += instance.OnRightMouse;
+        }
+
+        private void UnregisterCallbacks(IQTEInputActions instance)
+        {
+            @leftMouse.started -= instance.OnLeftMouse;
+            @leftMouse.performed -= instance.OnLeftMouse;
+            @leftMouse.canceled -= instance.OnLeftMouse;
+            @rightMouse.started -= instance.OnRightMouse;
+            @rightMouse.performed -= instance.OnRightMouse;
+            @rightMouse.canceled -= instance.OnRightMouse;
+        }
+
+        public void RemoveCallbacks(IQTEInputActions instance)
+        {
+            if (m_Wrapper.m_QTEInputActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IQTEInputActions instance)
+        {
+            foreach (var item in m_Wrapper.m_QTEInputActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_QTEInputActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public QTEInputActions @QTEInput => new QTEInputActions(this);
     public interface IPlayerInputActions
     {
         void OnPointer(InputAction.CallbackContext context);
@@ -417,5 +523,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         void OnSkill(InputAction.CallbackContext context);
         void OnFinishSkill(InputAction.CallbackContext context);
         void OnSwitch(InputAction.CallbackContext context);
+    }
+    public interface IQTEInputActions
+    {
+        void OnLeftMouse(InputAction.CallbackContext context);
+        void OnRightMouse(InputAction.CallbackContext context);
     }
 }

@@ -1,4 +1,5 @@
 using Cinemachine;
+using UnityEngine;
 
 public class RecenteringSetting
 {
@@ -6,6 +7,7 @@ public class RecenteringSetting
         
         public RecenteringSetting(CinemachineVirtualCamera cinemachineVirtualCamera)
         {
+                if (cinemachineVirtualCamera == null) Debug.LogError("cinemachineVirtualCamera is null");
                 _cinemachinePov = cinemachineVirtualCamera.GetCinemachineComponent<CinemachinePOV>();
         }
 

@@ -3,16 +3,45 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public struct HealthChangeEvent
+{
+    public HealthChangeEvent(Character_Name name, float curHealthPersent, Sprite headSprite)
+    {
+        this.name = name;
+        this.curHealthPersent = curHealthPersent;
+        this.head = headSprite;
+    }
+    public Character_Name name { get; private set; }
+    public float curHealthPersent { get; private set; }
+    public Sprite head { get; private set; }
+}
+
 public class CharacterStatus : MonoBehaviour, IbeHurted, IStatus
 {
     private Player _player;
     public float Doge_SlowTime;
     public float Doge_GapTime;
-    public float Inviciability_MaxTime;
-    public float health { get; set; }
+    
+    private float Health;
+    public Sprite HealdSprite;
+    public float health
+    {
+        get
+        {
+            return Health;
+        }
+        set
+        {
+            if (value == Health) return;
+            Health = value;
+            InvokeHealthChange();
+        }
+    }
+    
+    public void InvokeHealthChange() => EventManager.Instance.SendEvent<HealthChangeEvent>(new HealthChangeEvent(_player.poolType, health / maxHealth, HealdSprite));
+    
     [field : SerializeField] public float maxHealth { get; set; }
     public bool isDead { get; set; }
-    private float Invicibility_Timer { get; set; }
     
     public bool Invincible { get; set; }
 
@@ -31,14 +60,10 @@ public class CharacterStatus : MonoBehaviour, IbeHurted, IStatus
         health = maxHealth;
     }
 
-    private void Update()
-    {
-        if (Invicibility_Timer > 0) Invicibility_Timer -= Time.deltaTime;
-    }
-
     public void OnHurted(Vector2 direction, float damage)
     {
-        if (Invicibility_Timer > 0) return;
+        if (BulletTimeManager.Instance.isInBulletTime()) return;
+        
         if (CheckForInvicible()) return;
         
         health -= damage;
@@ -47,7 +72,8 @@ public class CharacterStatus : MonoBehaviour, IbeHurted, IStatus
     
     public void OnKilled(Vector2 direction)
     {
-        if (Invicibility_Timer > 0) return;
+        if (BulletTimeManager.Instance.isInBulletTime()) return;
+        
         if (CheckForInvicible()) return;
         
         isDead = true;
@@ -58,8 +84,7 @@ public class CharacterStatus : MonoBehaviour, IbeHurted, IStatus
     {
         if (Invincible)
         {
-            StartCoroutine(Dodge_VFX());
-            Invicibility_Timer = Inviciability_MaxTime;
+            BulletTimeManager.Instance.StartBulletTime();
             return true;
         }
 
@@ -71,11 +96,9 @@ public class CharacterStatus : MonoBehaviour, IbeHurted, IStatus
         return health - damage <= 0;
     }
 
-    private IEnumerator Dodge_VFX()
+    public void UIInit()
     {
-        Debug.Log("Dodge VFX");
-        CameraHitfeel.Instance.slowTime(Doge_SlowTime);
-        yield return new WaitForSeconds(Doge_GapTime);
-        CameraHitfeel.Instance.slowTimeEnd();
+        InvokeHealthChange();
     }
+    
 }

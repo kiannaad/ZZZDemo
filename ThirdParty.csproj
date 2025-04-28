@@ -89,9 +89,9 @@
     <Compile Include="Assets\Plugin\Behavior Designer\Runtime\Tasks\Unity\Transform\SetForwardVector.cs" />
     <Compile Include="Assets\Plugin\Behavior Designer\Runtime\Tasks\Unity\GameObject\GetComponent.cs" />
     <Compile Include="Assets\Plugin\Behavior Designer\Runtime\Tasks\Unity\Rigidbody\SetVelocity.cs" />
-    <Compile Include="Assets\Plugin\Behavior Designer\Runtime\Tasks\Unity\SharedVariables\SetSharedRect.cs" />
     <Compile Include="Assets\Plugin\Behavior Designer\Runtime\Tasks\Unity\SharedVariables\CompareSharedGameObjectList.cs" />
     <Compile Include="Assets\Plugin\Behavior Designer\Runtime\Tasks\Unity\Collider\SetEnabled.cs" />
+    <Compile Include="Assets\Plugin\Behavior Designer\Runtime\Tasks\Unity\SharedVariables\SetSharedRect.cs" />
     <Compile Include="Assets\Plugin\Behavior Designer\Runtime\Tasks\Unity\Animator\Play.cs" />
     <Compile Include="Assets\Plugin\Behavior Designer\Runtime\Tasks\Unity\CharacterController\SetSlopeLimit.cs" />
     <Compile Include="Assets\Plugin\Behavior Designer\Runtime\Tasks\Unity\AudioSource\GetPriority.cs" />
@@ -835,6 +835,9 @@
     </Reference>
     <Reference Include="Unity.VisualScripting.YamlDotNet">
       <HintPath>E:\UnityProgram\ZZZDemo\Library\PackageCache\com.unity.visualscripting@1.9.4\Editor\VisualScripting.Core\Dependencies\YamlDotNet\Unity.VisualScripting.YamlDotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Collections.LowLevel.ILSupport">
+      <HintPath>E:\UnityProgram\ZZZDemo\Library\PackageCache\com.unity.collections@1.2.4\Unity.Collections.LowLevel.ILSupport\Unity.Collections.LowLevel.ILSupport.dll</HintPath>
     </Reference>
     <Reference Include="unityplastic">
       <HintPath>E:\UnityProgram\ZZZDemo\Library\PackageCache\com.unity.collab-proxy@2.4.3\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>

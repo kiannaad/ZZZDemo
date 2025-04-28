@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
@@ -5,19 +6,49 @@ using UnityEngine;
 
 public class CameraHitfeel : MonoSigleton<CameraHitfeel>
 {
-    [SerializeField] private Animator playerAnimator;
-    [SerializeField] private Animator EnemyAnimator;
+    [SerializeField] private List<Animator> playerAnimator;
+    [SerializeField] private List<Animator> EnemyAnimator;
     private Coroutine pauseCoroutine;
     public CinemachineImpulseSource impulseSource;
+    
+    private bool DontPauseEnemy { get; set; }
+    public void EnableDontPauseEnemy() => DontPauseEnemy = true;
+    public void DisableDontPauseEnemy() => DontPauseEnemy = false;
 
-    public override void Awake()
+    public void AddAni_Enemy(Animator animator) => EnemyAnimator.Add(animator);
+    public void AddAni_Player(Animator animator) => playerAnimator.Add(animator);
+
+    private void Start()
     {
-        base.Awake();
+        DontPauseEnemy = false;
     }
 
-    private void Init()
+    public void SetAllEnemy(float time)
     {
-        
+       // Debug.Log("set enemy animation");
+        EnemyAnimator.RemoveAll((Animator a) =>
+        {
+            if (a == null) return true;
+            else
+            {
+                a.speed = time;
+                return false;
+            }
+        });
+    }
+
+    public void SetAllPlayer(float time)
+    {
+        playerAnimator.RemoveAll((ani =>
+        {
+            if (ani == null) return true;
+            else
+            {
+                ani.speed = time;
+                return false;
+            }
+        }));
+
     }
 
     public void PS(float time)
@@ -44,12 +75,17 @@ public class CameraHitfeel : MonoSigleton<CameraHitfeel>
     
     IEnumerator pauseTime(float time)
     {
-        playerAnimator.speed = 0f;
-        EnemyAnimator.speed = 0f;
+        if (!DontPauseEnemy)
+            SetAllEnemy(0f);
+        
+        SetAllPlayer(0f);
         VFXManager.Instance.paseVFX();
         yield return new WaitForSeconds(time);
-        playerAnimator.speed = 1f;
-        EnemyAnimator.speed = 1f;
+        
+        if (!DontPauseEnemy)
+            SetAllEnemy(1f);
+        
+        SetAllPlayer(1f);
         VFXManager.Instance.resetVFX(1f);
     }
 

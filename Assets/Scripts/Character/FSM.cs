@@ -35,7 +35,7 @@ public interface IState
     public void OnAnimationExitEvent();
 }
 
-public class FSM
+public class FSM : ICollection<IState>
 {
     private StateAction curstate = StateAction.None;
     private StateAction prestate = StateAction.None;
@@ -81,5 +81,41 @@ public class FSM
         }
         
         get => curstate;
+    }
+
+    public void Add(IState item) => AddState(item);
+    
+
+    public void Clear()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public bool Contains(IState item)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void CopyTo(IState[] array, int arrayIndex)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public bool Remove(IState item)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public int Count { get; }
+    public bool IsReadOnly { get; }
+
+    public IEnumerator<IState> GetEnumerator()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }

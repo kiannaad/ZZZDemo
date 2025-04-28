@@ -57,9 +57,10 @@ public class Corin_AttackSystem : MonoBehaviour
 
     private void Update()
     {
-        if (_playerController != null && (_playerController.stateMachine.State == StateAction.run || _playerController.stateMachine.State == StateAction.dash))
+        if (_playerController != null && (_playerController.stateMachine.State == StateAction.run ||
+                                           _playerController.stateMachine.State == StateAction.dash))
         {
-            _playerController.ChangeATKAction(RunATK, RunATK_ColdTime, 1, AudioClipType.可琳攻击受击语音6, HitType.Corin_Hit);
+                _playerController.ChangeATKAction(RunATK, RunATK_ColdTime, 1, AudioClipType.可琳攻击受击语音6, HitType.Corin_Hit);
         }
     }
 

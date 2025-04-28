@@ -212,6 +212,54 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "QTEInput",
+            "id": "f4736be4-80b4-44c8-a9b0-5f98f061dbd0",
+            "actions": [
+                {
+                    "name": "leftMouse",
+                    "type": "Button",
+                    "id": "56d649ea-8a01-4b33-828d-73e09b767675",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "rightMouse",
+                    "type": "Button",
+                    "id": "020f7d11-5e5c-4a85-8322-b49c853030a4",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "a9eec89b-6d48-4b4a-a3ff-d28877659c54",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "leftMouse",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9af64569-c4e3-46a7-a72a-2eb35f9b4254",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "rightMouse",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

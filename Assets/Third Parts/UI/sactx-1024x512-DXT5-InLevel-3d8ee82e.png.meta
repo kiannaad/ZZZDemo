@@ -3,7 +3,7 @@ guid: 4d8e83bf2057de44aa0fb30cebc13e72
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
-  serializedVersion: 12
+  serializedVersion: 13
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -106,20 +106,147 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 1024
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: sactx-1024x512-DXT5-InLevel-3d8ee82e_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 397
+        width: 89
+        height: 90
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2af562e35eda59b44abe2702dde7f360
+      internalID: 2030123350
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sactx-1024x512-DXT5-InLevel-3d8ee82e_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 479
+        width: 47
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e45b7b0b70abbda4a93c9258c749c6cd
+      internalID: 1491077895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sactx-1024x512-DXT5-InLevel-3d8ee82e_2
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 0
+        width: 1014
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -178, y: -83}
+        - {x: -178, y: -72}
+        - {x: -138, y: -72}
+        - {x: -138, y: -83}
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9ed17e90cf3f2ec4c9506c0ae6d54893
+      internalID: 1529339675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sactx-1024x512-DXT5-InLevel-3d8ee82e_3
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 394
+        width: 238
+        height: 52
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f20d45d48c74c454d884e42460a59aea
+      internalID: 1314453436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sactx-1024x512-DXT5-InLevel-3d8ee82e_4
+      rect:
+        serializedVersion: 2
+        x: 637
+        y: 1
+        width: 232
+        height: 42
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ed5def58cbd5ae742bbd1c4e85fb3253
+      internalID: 1725936472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 53311979d9adbf140876f6a54ccee875
     internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      sactx-1024x512-DXT5-InLevel-3d8ee82e_0: 2030123350
+      sactx-1024x512-DXT5-InLevel-3d8ee82e_1: 1491077895
+      sactx-1024x512-DXT5-InLevel-3d8ee82e_2: 1529339675
+      sactx-1024x512-DXT5-InLevel-3d8ee82e_3: 1314453436
+      sactx-1024x512-DXT5-InLevel-3d8ee82e_4: 1725936472
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

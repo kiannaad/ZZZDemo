@@ -7,13 +7,14 @@ using UnityEngine.AI;
 using UnityEngine.Serialization;
 using UnityEngine.TextCore.Text;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IDeflectable
 {
     private Animator animator;
     public BehaviorTree behaviorTree;
     public GameObject player;
     private NavMeshAgent agent;
     private CharacterController characterController;
+    public GroundContact groundContact;
 
     private float distance;
     public float damage;
@@ -33,28 +34,35 @@ public class Enemy : MonoBehaviour
         behaviorTree = GetComponent<BehaviorTree>();
         agent = GetComponent<NavMeshAgent>();
         characterController = GetComponent<CharacterController>();
+        groundContact = GetComponent<GroundContact>();
     }
 
     private void Start()
     {
-        CharacterList.Instance.OnCharacterSelected += ChangePlayer;
-        this.player = CharacterList.Instance.GetCurPlayer();
+        EventManager.Instance.RegisterEvent<OnCharacterSwitch>(@switch => ChangePlayer(@switch.curCharacter));
+        OnDeflected = beDeflected;
         StartCoroutine(UpdateDistance());
+        CameraHitfeel.Instance.AddAni_Enemy(animator);
     }
 
     private void Update()
     {
+        //Debug.Log($"animator speed: {animator.speed}");
         if (CheckCanRotate())
             RotateToPlayer();
         
         if (CanChase)
             SetForDestination();
+
+        if (CompledtedDeflection)
+        {
+            DisableCompledtedDeflection();
+            OnDeflected?.Invoke();
+        }
     }
 
     private void ChangePlayer(GameObject player) => this.player = player;
-
-   
-
+    
     public void OnHit()
     {
         AudioClipPoolManager.Instance.PlayAudioClip(Character_Name.Enemy, AudioClipType.punch8);
@@ -125,11 +133,13 @@ public class Enemy : MonoBehaviour
         Vector3 dir = Vector3.Normalize(player.transform.position - transform.position);
 
         transform.forward = new Vector3(dir.x, 0f, dir.z).normalized;
-        Debug.Log("ForceToFacePlayer");
+       // Debug.Log("ForceToFacePlayer");
 
     }
 
     #endregion
+
+    #region Move
 
     public bool canAttackRotate = false;
     [FormerlySerializedAs("canRunRotate")] public bool canRunAgent = false;
@@ -167,4 +177,30 @@ public class Enemy : MonoBehaviour
     }
     
     public void ResetAgent() => agent.ResetPath();
+
+    #endregion
+
+    public Action OnDeflected { get; set; }
+
+    public bool CanbeDeflected { get; set; }
+    public void EnableDeflection() => CanbeDeflected = true;
+    public void DisableDeflection() => CanbeDeflected = false;
+    public bool CompledtedDeflection { get; set; }
+    public void EnableCompledtedDeflection() => CompledtedDeflection = true;
+    public void DisableCompledtedDeflection() => CompledtedDeflection = false;
+
+    public void beDeflected()
+    {
+        StartCoroutine(EnterDeflected());
+    }
+
+    private IEnumerator EnterDeflected()
+    {
+        Debug.Log("EnterDeflected");
+        DisableDeflection();
+        behaviorTree.enabled = false;
+        animator.CrossFadeInFixedTime("Stun_Hit_H_Front", 0.14f);
+        yield return new WaitForSeconds(1f);
+        behaviorTree.enabled = true;
+    }
 }

@@ -30,7 +30,6 @@ public class EnemyState : MonoBehaviour, IbeHurted
     public void OnHurted(Vector2 direction, float damage)
     {
         if (isDead) return;
-        
         health -= damage;
         beAttacked(direction, damage);
         //Debug.Log(health);
@@ -69,4 +68,11 @@ public class EnemyState : MonoBehaviour, IbeHurted
         else if (angle <= 90f) animator.CrossFadeInFixedTime(HitBackAni_Name, 0.14f);*/
     }
     
+    private IEnumerator SpecialHurted()
+    {
+        _enemy.behaviorTree.enabled = false;
+        animator.CrossFadeInFixedTime("Stun_Hit_H_Front", 0.14f);
+        yield return new WaitForSeconds(2f);
+        _enemy.behaviorTree.enabled = true;
+    }
 }

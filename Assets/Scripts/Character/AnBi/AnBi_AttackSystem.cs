@@ -31,7 +31,7 @@ public class AnBi_AttackSystem : MonoBehaviour
             //Debug.Log(_playerController.ResuableDataAttack.comboCount == 3 && ctx.interaction is HoldInteraction );
             if (_playerController.ResuableDataAttack.comboCount == 3 && ctx.interaction is HoldInteraction)
             {
-                Debug.Log("power atk performed");
+                //Debug.Log("power atk performed");
                 _playerController.ChangeATKAction(PowerATK, PowerATK_ColdTime, 10, AudioClipType.安比攻击受击7, HitType.AnBi_Hit,true);
             }
         };

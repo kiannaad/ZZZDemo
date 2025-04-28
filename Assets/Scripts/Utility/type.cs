@@ -67,6 +67,7 @@ public enum AudioClipType
 
 public enum Character_Name
 {
+    None,
     AnBi,
     Corin,
     Enemy
@@ -87,4 +88,11 @@ public enum HitType
     NULL,
     AnBi_Hit,
     Corin_Hit,
+}
+
+public enum FlyingType
+{
+    NULL,
+    ATK,
+    Evade,
 }

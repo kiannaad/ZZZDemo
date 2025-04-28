@@ -49,7 +49,19 @@ public partial class PlayerController
         playerInputActions = _player.inputActions;
         this.status = _player.status;
         
-        stateMachine = new FSM();
+        stateMachine = new FSM
+        {
+            new IdleState(this),
+            new walkState(this),
+            new DashState(this),
+            new runState(this),
+            new turnbackState(this),
+            new moveNullState(this),
+            new ATKState(this),
+            new SkillState(this),
+            new FinishSkillState(this),
+            new HitState(this)
+        };
         ResuableDataMove = new ResuableData_Move();
         ResuableDataAttack = new ResuableData_Attack();
         aniHarsh = new AniHarsh();
@@ -62,17 +74,6 @@ public partial class PlayerController
         cam = player.cam;
         animator = player.animator;
         //this.playerActions = InputActions.Instance._playerInputActions;
-        
-        stateMachine.AddState(new IdleState(this));
-        stateMachine.AddState(new walkState(this));
-        stateMachine.AddState(new DashState(this));
-        stateMachine.AddState(new runState(this));
-        stateMachine.AddState(new turnbackState(this));
-        stateMachine.AddState(new moveNullState(this));
-        stateMachine.AddState(new ATKState(this));
-        stateMachine.AddState(new SkillState(this));
-        stateMachine.AddState(new FinishSkillState(this));
-        stateMachine.AddState(new HitState(this));
         
         stateMachine.State = StateAction.idle;
         InitAtkAction();
