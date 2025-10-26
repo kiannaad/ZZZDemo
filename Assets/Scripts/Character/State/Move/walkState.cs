@@ -12,7 +12,7 @@ public class walkState : MovementState
     public override void Enter()
     {
         base.Enter();
-        player.animator.CrossFadeInFixedTime("WalkStart", 0.14f);
+        player.CrossFadeInFixedTime("WalkStart", 0.14f);
     }
 
     public override void Update()

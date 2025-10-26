@@ -26,7 +26,7 @@ public class AnBi_AttackSystem : MonoBehaviour
     private void Start()
     {
         _playerController = _player.controller;
-        _player.inputActions.LeftMouse.performed += ctx =>
+        _player.InputActions.LeftMouse.performed += ctx =>
         {
             //Debug.Log(_playerController.ResuableDataAttack.comboCount == 3 && ctx.interaction is HoldInteraction );
             if (_playerController.ResuableDataAttack.comboCount == 3 && ctx.interaction is HoldInteraction)

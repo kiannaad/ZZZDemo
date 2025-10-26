@@ -27,7 +27,7 @@ public class VFXPool : IVFXPool
    [field : SerializeField] public List<VFXData> vfxData { get; set; }
 }
 
-public class VFXManager : MonoSigleton<VFXManager>
+public class VFXManager : MonoBehaviour
 {
     [SerializeField] private VFXPool Anbi_VFXPool;
     [SerializeField] private VFXPool Corin_VFXPool;
@@ -39,9 +39,8 @@ public class VFXManager : MonoSigleton<VFXManager>
     
     private Dictionary<Character_Name, Dictionary<HitType, GameObject>> OriginHitPool = new Dictionary<Character_Name, Dictionary<HitType, GameObject>>();
     private Dictionary<Character_Name, Dictionary<HitType, Queue<VFXItem>>> hitPool = new Dictionary<Character_Name, Dictionary<HitType, Queue<VFXItem>>>();
-    public override void Awake()
+    public void Awake()
     {
-        base.Awake();
         vfxPools.Add(Anbi_VFXPool);
         vfxPools.Add(Corin_VFXPool);
         

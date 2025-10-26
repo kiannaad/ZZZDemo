@@ -26,9 +26,10 @@ public class ComboState : GroundState
     
     public override void OnMoveStarted(InputAction.CallbackContext context)
     {
-        player.animator.SetBool(player.aniHarsh.HasInputID, true);
+        player.SetBool(player.aniHarsh.HasInputID, true);
+        Debug.Log($"canMoveInterrupt : {player.ResuableDataAttack.canMoveInterrupt}");
         
-        if (player.ResuableDataAttack.canMoveInterrupt == false) return;
+        if (!player.ResuableDataAttack.canMoveInterrupt) return;
         
         player.SoundClear();
         player.stateMachine.State = player.moveAction;
@@ -36,7 +37,7 @@ public class ComboState : GroundState
     
     public override void OnMoveCanceled(InputAction.CallbackContext context)
     {
-        player.animator.SetBool(player.aniHarsh.HasInputID, false);
+        player.SetBool(player.aniHarsh.HasInputID, false);
         
         if (player.ResuableDataAttack.canMoveInterrupt == false) return;
         

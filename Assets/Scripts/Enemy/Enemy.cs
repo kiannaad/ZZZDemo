@@ -2,17 +2,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using BehaviorDesigner.Runtime;
+using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Serialization;
 using UnityEngine.TextCore.Text;
 
-public class Enemy : MonoBehaviour, IDeflectable
+public class Enemy : NetworkBehaviour, IDeflectable
 {
     private Animator animator;
     public BehaviorTree behaviorTree;
     public GameObject player;
-    private NavMeshAgent agent;
+    public NavMeshAgent agent;
     private CharacterController characterController;
     public GroundContact groundContact;
 
@@ -39,33 +41,43 @@ public class Enemy : MonoBehaviour, IDeflectable
 
     private void Start()
     {
-        EventManager.Instance.RegisterEvent<OnCharacterSwitch>(@switch => ChangePlayer(@switch.curCharacter));
-        OnDeflected = beDeflected;
-        StartCoroutine(UpdateDistance());
-        CameraHitfeel.Instance.AddAni_Enemy(animator);
+        if (IsServer)
+        {
+            OnDeflected = beDeflected;
+            StartCoroutine(UpdateDistance());
+            agent.enabled = true;
+            behaviorTree.enabled = true;
+        }
+        
+        if (IsClient)
+        {
+            CameraHitfeel.Instance.AddAni_Enemy(animator);
+            agent.enabled = false;
+            behaviorTree.enabled = false;
+        }
     }
 
     private void Update()
     {
-        //Debug.Log($"animator speed: {animator.speed}");
+        if (!IsServer) return;
+        
         if (CheckCanRotate())
             RotateToPlayer();
         
         if (CanChase)
             SetForDestination();
 
-        if (CompledtedDeflection)
+        if (CompledtedDeflection.Value)
         {
             DisableCompledtedDeflection();
             OnDeflected?.Invoke();
         }
     }
-
-    private void ChangePlayer(GameObject player) => this.player = player;
     
     public void OnHit()
     {
-        AudioClipPoolManager.Instance.PlayAudioClip(Character_Name.Enemy, AudioClipType.punch8);
+        if (IsClient)
+            AudioClipPoolManager.Instance.PlayAudioClip(Character_Name.Enemy, AudioClipType.punch8);
     }
 
     #region 更新距离
@@ -90,6 +102,19 @@ public class Enemy : MonoBehaviour, IDeflectable
 
     private void RotateToPlayer()
     {
+        if (player == null)
+        {
+            if (behaviorTree.GetVariable("Player").GetValue() as GameObject != null)
+            {
+                Debug.Log("player 赋值");
+                player = behaviorTree.GetVariable("Player").GetValue() as GameObject;
+            }
+            else
+            {
+                Debug.Log("player return");
+                return;
+            }
+        }
         GetDirectionToPlayer();
         var TargetAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref currentVelocity, smoothTime);
         transform.rotation = Quaternion.Euler(transform.eulerAngles.x, TargetAngle, transform.eulerAngles.z);
@@ -97,6 +122,7 @@ public class Enemy : MonoBehaviour, IDeflectable
 
     private void GetDirectionToPlayer()
     {
+        if (player == null) Debug.LogError("player is null");
         direction = player.transform.position - transform.position;
         targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
         if (targetAngle < 0)
@@ -146,6 +172,7 @@ public class Enemy : MonoBehaviour, IDeflectable
 
     private void OnAnimatorMove()
     {
+        if (!IsServer) return;
         if (canAttackRotate)
         {
             ForceToFacePlayer();
@@ -167,6 +194,7 @@ public class Enemy : MonoBehaviour, IDeflectable
 
     private void SetForDestination()
     {
+        if (player == null) return;
         agent.SetDestination(player.transform.position);
 
         if (distance <= agent.stoppingDistance)
@@ -182,12 +210,29 @@ public class Enemy : MonoBehaviour, IDeflectable
 
     public Action OnDeflected { get; set; }
 
-    public bool CanbeDeflected { get; set; }
-    public void EnableDeflection() => CanbeDeflected = true;
-    public void DisableDeflection() => CanbeDeflected = false;
-    public bool CompledtedDeflection { get; set; }
-    public void EnableCompledtedDeflection() => CompledtedDeflection = true;
-    public void DisableCompledtedDeflection() => CompledtedDeflection = false;
+    public NetworkVariable<bool> CanbeDeflected { get; set; } = new NetworkVariable<bool>();
+    public void EnableDeflection()
+    {
+        if (!IsServer) return;
+        CanbeDeflected.Value = true;
+    }
+    public void DisableDeflection()
+    {
+        if (!IsServer) return;
+        CanbeDeflected.Value = false;
+    }
+
+    public NetworkVariable<bool> CompledtedDeflection { get; set; } = new NetworkVariable<bool>();
+    public void EnableCompledtedDeflection()
+    {
+        if (!IsServer) return;
+        CompledtedDeflection.Value = true;
+    }
+    public void DisableCompledtedDeflection()
+    {
+        if (!IsServer) return;
+        CompledtedDeflection.Value = false;
+    }
 
     public void beDeflected()
     {
@@ -203,4 +248,5 @@ public class Enemy : MonoBehaviour, IDeflectable
         yield return new WaitForSeconds(1f);
         behaviorTree.enabled = true;
     }
+    
 }

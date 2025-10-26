@@ -3,10 +3,30 @@ using System.Collections;
 using System.Collections.Generic;
 using BehaviorDesigner.Runtime.Tasks.Unity.UnityLayerMask;
 using Cinemachine;
+using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player : MonoBehaviour, ISwitch
+
+public interface IPlayer : ISwitch
+{
+    public GameObject owner { get; }
+    public GameObject lookAt { get; set; }
+    public Character_Name GetName();
+    public void OnStartLocalPlayer();
+    public void OnInit(ICharacterList list);
+    public void OnAwake();
+    public void OnStart();
+    public void OnUpdate();
+    public void OnFixedUpdate();
+    public void EnableInput();
+    public void DisableInput();
+    public void SetActiveRpc(bool active);
+    public void InvokeClientNoLocalHealthChange();
+}
+
+public class Player : NetworkBehaviour, IPlayer
 {
     public Camera cam;
     public CinemachineVirtualCamera vcam;
@@ -16,14 +36,29 @@ public class Player : MonoBehaviour, ISwitch
     
     public CharacterSOData content;
     public PlayerController controller;
-    public GameInput.PlayerInputActions inputActions;
-    private CharacterList list;
+    public GameInput inputActions;
+    private AnticipatedNetworkTransform anticipatedNetworkTransform;
+    public VFXManager fx;
+
+    public GameInput.PlayerInputActions InputActions
+    {
+        get
+        {
+            if (inputActions == null)
+            {
+                inputActions = new GameInput();
+            }
+
+            return inputActions.PlayerInput;
+        }
+    }
+    private ICharacterList _list;
     private FlyingKnife _flyingKnife;
     
     public FlyingType flyingType;
     //public bool BulletTime;
     
-    [field: SerializeField] public GameObject lookAt { get; private set; }
+    [field: SerializeField] public GameObject lookAt { get; set; }
     public float fadeTime;
 
     [field : SerializeField] public Character_Name poolType { get; private set; }
@@ -32,83 +67,194 @@ public class Player : MonoBehaviour, ISwitch
     
     public void DisableSwitching() => SwitchOuting = false;
     
-    public void EnableInput() => inputActions.Enable();
-    public void DisableInput() => inputActions.Disable();
+    public void EnableInput() => InputActions.Enable();
+    public void DisableInput() => InputActions.Disable();
+    public void InvokeClientNoLocalHealthChange() => status.InvokeClientNoLocalHealthChange();
     
     public Character_Name GetName() => poolType;
     public IStatus GetIStatus() => status;
     
-    private void Awake()
+    public void OnInit(ICharacterList list)
     {
-        
-        GameInput input = new GameInput();
-        inputActions = input.PlayerInput;
-        
+        _list = list;
+        fx = _list.fx;
+    }
+
+    public void OnAwake()
+    {
         _flyingKnife = new FlyingKnife(content.AttackData.CheckDistance, LayerMask.GetMask("Enemy"), transform);
-        
         animator = GetComponent<Animator>();
-        controller = new PlayerController(content, this);
-        list = GetComponentInParent<CharacterList>();
+        _list = GetComponentInParent<CharacterList>();
         characterController = GetComponent<CharacterController>();
         status = GetComponent<IStatus>();
+       // cam = Camera.main;
+        controller = new PlayerController(content, this);
+        anticipatedNetworkTransform = GetComponent<AnticipatedNetworkTransform>();
+    }
 
-        EventManager.Instance.RegisterEvent<TimeLineStarted>(started =>
+    public GameObject owner => gameObject;
+
+    public void OnStartLocalPlayer()
+    {
+        if (!IsLocalPlayer) return;
+        
+        //Debug.Log($"localPlayer: {gameObject.name}");
+       
+        /*EventManager.Instance.RegisterEvent<TimeLineStarted>(started =>
         {
+            if (!gameObject.activeInHierarchy) return;
+
+            Debug.Log("DisableInput");
             DisableInput();
             animator.enabled = false;
         });
 
         EventManager.Instance.RegisterEvent<TimeLineStopped>(stopped =>
         {
+            if (!gameObject.activeInHierarchy) return;
+
             EnableInput();
             animator.Rebind();
             animator.enabled = true;
-        });
-    }
-
-    private void Start()
-    {
-        CameraHitfeel.Instance.AddAni_Player(animator);
-        inputActions.Switch.performed += (context) =>
+        });*/
+        
+        InputActions.Switch.performed += (context) =>
         {
             if (controller.stateMachine.State != StateAction.FinishSkill)
             {
-                list?.ChangeCharacter(context);
+                _list?.ChangeCharacter(context);
             }
         };
+
+        EnableInput();
     }
 
-    private void Update()
+    public void OnStart()
     {
-        if (Input.GetKeyDown(KeyCode.T))
+        if (IsLocalPlayer)
+            CameraHitfeel.Instance.AddAni_Player(animator);
+        
+        anticipatedNetworkTransform.enabled = false;
+    }
+
+    public void OnUpdate()
+    {
+        if (!IsLocalPlayer) return;
+        
+        /*if (Input.GetKeyDown(KeyCode.T))
         {
             QTETimeManager.Instance.StartQTETime();
-            /*animator.CrossFade("QuestStart", 0.14f);*/
-        }
+            /*animator.CrossFade("QuestStart", 0.14f);#1#
+        }*/
         
         if (!SwitchOuting)
         {
             controller.Update();
         }
-        
     }
 
-    private void FixedUpdate()
+    public void OnFixedUpdate()
     {
+        if (!IsLocalPlayer) return;
+        
         if (!SwitchOuting)
             controller.FixedUpdate();
     }
 
     private void OnAnimatorMove()
     {
+        if (isForceChange) return;
         Vector3 move = animator.deltaPosition;
-        Quaternion rotation = animator.deltaRotation;
-        
+        //Quaternion rotation = animator.deltaRotation;
+       
         characterController.Move(move);
-        transform.rotation *= rotation;
+        //transform.rotation *= rotation;
     }
 
-    #region ISwitch的具体实现
+    private bool isForceChange = false;
+    
+    [ServerRpc]
+    public void SetFloatServerRpc(int nameId, float value) => animator.SetFloat(nameId, value);
+    [ServerRpc]
+    public void SetBoolServerRpc(int nameId, bool value)
+    {
+        animator.SetBool(nameId, value);
+    }
+    [ServerRpc]
+    public void CrossFadeServerRpc(string nameId, float fadeTime)
+    {
+        animator.CrossFade(nameId, fadeTime);
+    }
+    [ServerRpc]
+    public void CrossFadeInFixedTimeServerRpc(string name, float fadeTime)
+    {
+        animator.CrossFadeInFixedTime(name, fadeTime);
+    }
+   
+    [ServerRpc]
+    public void ChangePositionServerRpc(Vector3 pos)
+    {
+        /*transform.position = pos;
+        ChangePosClientRpc(pos);*/
+        anticipatedNetworkTransform.AnticipateMove(pos); 
+    }
+
+    [ClientRpc]
+    private void ChangePosClientRpc(Vector3 pos)
+    {
+        transform.position = pos;
+    }
+    
+    [ServerRpc]
+    public void ChangeRotationServerRpc(Quaternion rot)
+    {
+        //ChangeRotClientRpc(rot);
+        anticipatedNetworkTransform.AnticipateRotate(rot);
+    }
+    
+    [ServerRpc]
+    public void ChangePotServerRpc(Quaternion rot)
+    {
+        transform.rotation = rot;
+        ChangeRotClientRpc(rot);
+    }
+    
+    [ClientRpc]
+    private void ChangeRotClientRpc(Quaternion rot)
+    {
+        transform.rotation = rot;
+    }
+
+    [ServerRpc]
+    public void EnableForceChangeServerRpc() => EnableForceChangeClientRpc();
+    [ClientRpc]
+    public void EnableForceChangeClientRpc() => isForceChange = true;
+
+    [ServerRpc]
+    public void DisableForceChangeServerRpc() => DisableForceChangeClientRpc();
+    
+    [ClientRpc]
+    public void DisableForceChangeClientRpc() => isForceChange = false;
+    
+
+    public void SetActiveRpc(bool active)
+    {
+        if (!IsLocalPlayer) return;
+        gameObject.SetActive(active);
+        SetSeverActiveServerRpc(active);
+    }
+
+    [ServerRpc]
+    public void SetSeverActiveServerRpc(bool active)
+    {
+        SetActiveClientRpc(active);
+        gameObject.SetActive(active);
+    }
+    
+    [ClientRpc]
+    private void SetActiveClientRpc(bool active) => gameObject.SetActive(active);
+
+     #region ISwitch的具体实现
 
     private GameTimer timer = null;
     private Coroutine coroutine = null;
@@ -123,10 +269,10 @@ public class Player : MonoBehaviour, ISwitch
     {
         Switch_In_Init();
         
-        if (isQTE)
+        /*if (isQTE)
         {
-            transform.position = position;
-            transform.rotation = Quaternion.Euler(rotation);
+            ChangePositionServerRpc(position);
+            ChangeRotationServerRpc(Quaternion.Euler(rotation));
             Switch_In_QTE();
             return;
         }
@@ -136,20 +282,23 @@ public class Player : MonoBehaviour, ISwitch
         if (enemy != null)
         {
             //Debug.Log("flying success");
-            transform.position = position;
-            transform.rotation = Quaternion.Euler(rotation);
+            ChangePositionServerRpc(position);
+            ChangeRotationServerRpc(Quaternion.Euler(rotation));
             Switch_In_FlyingAction(enemy.transform.position, -enemy.transform.forward, offset);
         }
-        else
+        else*/
         {
            Switch_In_Action(position, rotation, offset);
         }
+
+        anticipatedNetworkTransform.enabled = false;
     }
 
     public void Switch_Out(Vector3 position, Vector3 rotation)
     {
         Switch_Out_Init(); 
         Switch_Out_Action(position, rotation);
+        anticipatedNetworkTransform.enabled = false;
     }
     
     public SwitchType CanSwitch()
@@ -175,23 +324,26 @@ public class Player : MonoBehaviour, ISwitch
 
     private void Switch_In_QTE()
     {
-        gameObject.SetActive(true);
+        SetActiveRpc(true);
+        DisableForceChangeServerRpc();
         controller.ChangeATKAction(() =>
         {
-            animator.CrossFade("QTEATK", 0.14f);
+            CrossFadeServerRpc("QTEATK", 0.14f);
         },0.2f, 10, AudioClipType.安比技能, HitType.AnBi_Hit);
         controller.stateMachine.State = StateAction.ATK;
     }
 
     private void Switch_In_FlyingAction(Vector3 position, Vector3 Direction, Vector3 offset)
     {
-        if (gameObject.activeInHierarchy) gameObject.SetActive(false);
+        if (gameObject.activeInHierarchy) SetActiveRpc(false);
         
-        transform.position = position + -Direction.normalized * offset.magnitude;
-        transform.rotation = Quaternion.LookRotation(Direction);
+        ChangePositionServerRpc(position + -Direction.normalized * offset.magnitude);
+        ChangeRotationServerRpc(Quaternion.LookRotation(Direction));
         
-        gameObject.SetActive(true);
-        animator.CrossFadeInFixedTime("FlyingCombo", 0.14f);
+        SetActiveRpc(true);
+        DisableForceChangeServerRpc();
+        
+        CrossFadeInFixedTimeServerRpc("FlyingCombo", 0.14f);
         
         if (flyingType == FlyingType.ATK)
         {
@@ -205,19 +357,27 @@ public class Player : MonoBehaviour, ISwitch
     
     private void Switch_In_Action(Vector3 position, Vector3 rotation, Vector3 offset)
     {
-        if (gameObject.activeSelf) return;
-        
-        transform.rotation = Quaternion.Euler(rotation);
-        if (CheckCanSwitch_In(position, offset))
-            transform.position = position + offset;
-        else
+        if (gameObject.activeSelf)
         {
-            transform.position = position;
+            Debug.Log($"当前角色已经是激活状态 Switch_In_Action");
+            return;
         }
         
-        gameObject.SetActive(true);
+        ChangeRotationServerRpc(Quaternion.Euler(rotation));
+        if (CheckCanSwitch_In(position, offset))
+        {
+            ChangePositionServerRpc(position + offset);
+            //Debug.Log($"{transform.name} targetpos : {position + offset}, curpos : {transform.position}");
+        }
+        else
+        {
+            ChangePositionServerRpc(position);
+        }
         
-        animator.CrossFadeInFixedTime("SwitchIn", 0.14f);
+        SetActiveRpc(true);
+        DisableForceChangeServerRpc();
+        
+        CrossFadeInFixedTimeServerRpc("SwitchIn", 0.14f);
         
         if (controller.CheckEnemyIsValid() != null)
         {
@@ -230,6 +390,8 @@ public class Player : MonoBehaviour, ISwitch
         TimerManager.Instance.UnRigisterTimer(timer);
         cancelCoroutine();
         SwitchOuting = false;
+        anticipatedNetworkTransform.enabled = true;
+        EnableForceChangeServerRpc();
 
         TimerManager.Instance.GetTimer(0.14f, () =>
         {
@@ -245,13 +407,16 @@ public class Player : MonoBehaviour, ISwitch
 
     private void Switch_Out_Action(Vector3 position, Vector3 rotation)
     {
+        coroutine = null;
         coroutine =  StartCoroutine(WaitForFade(position, rotation));
     }
 
     private void Switch_Out_Init()
     {
         SwitchOuting = true;
+        anticipatedNetworkTransform.enabled = true;
         DisableInput();
+        EnableForceChangeServerRpc();
     }
     
     private IEnumerator WaitForFade(Vector3 position, Vector3 rotation)
@@ -259,9 +424,12 @@ public class Player : MonoBehaviour, ISwitch
         yield return new WaitUntil(() => controller.stateMachine.State != StateAction.FinishSkill &&
                                          controller.stateMachine.State != StateAction.Skill && 
                                          controller.stateMachine.State != StateAction.ATK);
-        transform.position = position;
-        transform.rotation = Quaternion.Euler(rotation);
-        animator.CrossFadeInFixedTime("SwitchOut", 0.14f);
+        ChangePositionServerRpc(position);
+        ChangeRotationServerRpc(Quaternion.Euler(rotation));
+        
+        DisableForceChangeServerRpc();
+        
+        CrossFadeInFixedTimeServerRpc("SwitchOut", 0.14f);
         
         FadeAway();
         //Debug.Log(poolType.ToString() + " " + controller.stateMachine.State);
@@ -269,8 +437,12 @@ public class Player : MonoBehaviour, ISwitch
     
     private void FadeAway() => timer = TimerManager.Instance.GetTimer(fadeTime, () =>
     {
-        gameObject.SetActive(false);
-        DisableSwitching();
+        if (gameObject.activeInHierarchy)
+        {
+            SetActiveRpc(false);
+            DisableSwitching();
+        }
+        coroutine = null;
     });
 
     #endregion

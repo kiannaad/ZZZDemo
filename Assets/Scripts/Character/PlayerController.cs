@@ -9,7 +9,7 @@ using Debug = UnityEngine.Debug;
 
 public partial class PlayerController
 {
-    public FSM stateMachine;
+     public FSM stateMachine;
     public Player player;
     public GameInput.PlayerInputActions playerInputActions;
     public IStatus status;
@@ -32,9 +32,7 @@ public partial class PlayerController
     public Vector3 MoveInput{get; private set;}
 
     public StateAction moveAction { get;private set; }
-
-
-    public void SetMovementZero() => animator.SetFloat(aniHarsh.MovementID, 0f);
+    
     public void MoveToggle() => moveAction = moveAction == StateAction.walk ? StateAction.run : StateAction.walk;
     public bool notMoveInput() => MoveInput.x == 0 && MoveInput.z == 0;
     private void GetInput() => MoveInput = new Vector3(playerInputActions.Move.ReadValue<Vector2>().x, 0, playerInputActions.Move.ReadValue<Vector2>().y);
@@ -46,7 +44,7 @@ public partial class PlayerController
         this.content = content;
         player = _player;
         vcam = _player.vcam;
-        playerInputActions = _player.inputActions;
+        playerInputActions = _player.InputActions;
         this.status = _player.status;
         
         stateMachine = new FSM
@@ -103,6 +101,29 @@ public partial class PlayerController
         stateMachine.FixedUpdate(); 
     }
 
+    public void SetMovementZero() => SetFloat(aniHarsh.MovementID, 0f);
+
+    public void SetFloat(int nameId, float value)
+    {
+        if (!player.IsLocalPlayer) return;
+        player.SetFloatServerRpc(nameId, value);
+    }
+    public void SetBool(int nameId, bool value)
+    {
+        if (!player.IsLocalPlayer) return;
+        player.SetBoolServerRpc(nameId, value);
+    }
+    public void CrossFadeInFixedTime(string nameId, float fadeTime)
+    {
+        if (!player.IsLocalPlayer) return;
+        player.CrossFadeInFixedTimeServerRpc(nameId, fadeTime);
+    }
+    public void ChangeRotation(Quaternion rotation)
+    {
+        if (!player.IsLocalPlayer) return;
+        player.ChangePotServerRpc(rotation);
+    }
+    
     /// <summary>
     /// 用来更新walk和run对应的速度上限
     /// </summary>
@@ -118,11 +139,11 @@ public partial class PlayerController
 
         var TargetToSpeed = Mathf.SmoothDamp(animator.GetFloat(aniHarsh.MovementID), targetSpeed,
             ref ResuableDataMove.MoveSpeed, content.moveData.moveTime);
-        
-        animator.SetFloat(aniHarsh.MovementID, TargetToSpeed);
-    }
 
-    public void Hited() => animator.CrossFadeInFixedTime("Hit_H_Front", 0.14f);
+        SetFloat(aniHarsh.MovementID, TargetToSpeed);
+    }
+    
+    public void Hited() => CrossFadeInFixedTime("Hit_H_Front", 0.14f);
     
     public Vector3 GetInputDirection() => Quaternion.Euler(0f, GetInputRotation(MoveInput), 0f) * Vector3.forward;
 
@@ -157,7 +178,7 @@ public partial class PlayerController
         
         float RotateToTarget = Mathf.SmoothDampAngle(player.transform.eulerAngles.y, Targetrotation, ref ResuableDataMove.rotateVelocity, smoothTime);
         
-        player.transform.rotation = Quaternion.Euler(0, RotateToTarget, 0);
+        ChangeRotation(Quaternion.Euler(0, RotateToTarget, 0));
     }
 
     /// <summary>

@@ -84,7 +84,6 @@ public class EventManager : Singleton<EventManager>
     {
         private void OnDisable()
         {
-            Debug.Log("OnDisable");
             UnRegister();
         }
         private void OnDestroy()

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public struct HealthChangeEvent
@@ -16,30 +17,33 @@ public struct HealthChangeEvent
     public Sprite head { get; private set; }
 }
 
-public class CharacterStatus : MonoBehaviour, IbeHurted, IStatus
+public class CharacterStatus : NetworkBehaviour, IbeHurted, IStatus
 {
     private Player _player;
     public float Doge_SlowTime;
     public float Doge_GapTime;
-    
-    private float Health;
+
+    public NetworkVariable<float> health { get; set; } = new NetworkVariable<float>(100);
     public Sprite HealdSprite;
-    public float health
+    
+    public void InvokeHealthChange(float _old, float _new)
     {
-        get
+        if (IsLocalPlayer)
         {
-            return Health;
+            EventManager.Instance.SendEvent<HealthChangeEvent>(new HealthChangeEvent(_player.poolType,
+                health.Value / maxHealth, HealdSprite));
         }
-        set
+        
+        if (IsClient && !IsLocalPlayer)
         {
-            if (value == Health) return;
-            Health = value;
-            InvokeHealthChange();
+            InvokeClientNoLocalHealthChange();
         }
     }
-    
-    public void InvokeHealthChange() => EventManager.Instance.SendEvent<HealthChangeEvent>(new HealthChangeEvent(_player.poolType, health / maxHealth, HealdSprite));
-    
+    public void InvokeClientNoLocalHealthChange()
+    {
+        //Debug.Log($"{transform.name}: InvokeClientNoLocalHealthChange");
+        EventManager.Instance.SendEvent<ClientUIData>(new ClientUIData(HealdSprite, health.Value, NetworkObjectId));
+    }
     [field : SerializeField] public float maxHealth { get; set; }
     public bool isDead { get; set; }
     
@@ -53,11 +57,16 @@ public class CharacterStatus : MonoBehaviour, IbeHurted, IStatus
         _player = GetComponent<Player>();
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        health.OnValueChanged += InvokeHealthChange;
+    }
+
     private void Start()
     {
         Invincible = false;
         isDead = false;
-        health = maxHealth;
     }
 
     public void OnHurted(Vector2 direction, float damage)
@@ -66,7 +75,16 @@ public class CharacterStatus : MonoBehaviour, IbeHurted, IStatus
         
         if (CheckForInvicible()) return;
         
-        health -= damage;
+        if (IsLocalPlayer)
+        {
+          ProcessDamageServerRpc(damage);
+        }
+    }
+
+    [ServerRpc]
+    private void ProcessDamageServerRpc(float damage)
+    {
+       health.Value -= damage;
         _player.ChangeToHit();
     }
     
@@ -93,12 +111,12 @@ public class CharacterStatus : MonoBehaviour, IbeHurted, IStatus
 
     public bool CheckOnDied(float damage)
     {
-        return health - damage <= 0;
+        return health.Value - damage <= 0;
     }
 
     public void UIInit()
     {
-        InvokeHealthChange();
+        InvokeHealthChange(0, 0);
     }
     
 }

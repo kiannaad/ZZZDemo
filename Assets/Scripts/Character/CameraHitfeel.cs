@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class CameraHitfeel : MonoSigleton<CameraHitfeel>
 {
-    [SerializeField] private List<Animator> playerAnimator;
-    [SerializeField] private List<Animator> EnemyAnimator;
+    [SerializeField] private List<Animator> playerAnimator = new List<Animator>();
+    [SerializeField] private List<Animator> EnemyAnimator = new List<Animator>();
     private Coroutine pauseCoroutine;
     public CinemachineImpulseSource impulseSource;
     
@@ -79,14 +79,14 @@ public class CameraHitfeel : MonoSigleton<CameraHitfeel>
             SetAllEnemy(0f);
         
         SetAllPlayer(0f);
-        VFXManager.Instance.paseVFX();
+       
         yield return new WaitForSeconds(time);
         
         if (!DontPauseEnemy)
             SetAllEnemy(1f);
         
         SetAllPlayer(1f);
-        VFXManager.Instance.resetVFX(1f);
+       
     }
 
     public void slowTime(float time)

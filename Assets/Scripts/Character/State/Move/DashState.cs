@@ -13,11 +13,11 @@ public class DashState : GroundState
     {
         base.Enter();
         player._curMoveInput = player.MoveInput;
-        if (player.notMoveInput()) player.animator.CrossFadeInFixedTime("Dash_Back", 0.14f);
+        if (player.notMoveInput()) player.CrossFadeInFixedTime("Dash_Back", 0.14f);
         else
         {
-            player.animator.CrossFadeInFixedTime("Dash_Front", 0.14f);
-            player.animator.SetBool(player.aniHarsh.HasInputID, true);
+            player.CrossFadeInFixedTime("Dash_Front", 0.14f);
+            player.SetBool(player.aniHarsh.HasInputID, true);
         }
         player.PlayWindAudio();
     }

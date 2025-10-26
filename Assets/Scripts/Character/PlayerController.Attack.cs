@@ -62,7 +62,7 @@ public partial class PlayerController
         curAttackSound?.Clear();
         ComboData data = ResuableDataAttack.comboData[ResuableDataAttack.comboCount];
         string name = data.comboName;
-        animator.CrossFade(name, 0.111f);
+        player.CrossFadeServerRpc(name, 0.111f);
         UpdatehitResource(data.damage, data.HitSounds, data.HitVFX, data.ShakeForce);
        // Debug.Log(data.comboName);
         curAttackSound.Add(AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, data.sweaponSound));
@@ -81,7 +81,7 @@ public partial class PlayerController
         curAttackSound?.Clear();
         ComboData data = ResuableDataAttack.skillData;
         string name = data.comboName;
-        animator.CrossFade(name, 0.111f);
+        player.CrossFadeServerRpc(name, 0.111f);
         UpdatehitResource(data.damage, data.HitSounds, data.HitVFX, data.ShakeForce);
         curAttackSound.Add(AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, data.sweaponSound));
         curAttackSound.Add(AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, data.CharacterSounds));
@@ -98,11 +98,12 @@ public partial class PlayerController
         curAttackSound?.Clear();
         ComboData data = ResuableDataAttack.finishSkillData;
         string name = data.comboName;
-        animator.CrossFade(name, 0.111f);
+        player.CrossFadeServerRpc(name, 0.111f);
         UpdatehitResource(data.damage, data.HitSounds, data.HitVFX, data.ShakeForce);
         //AudioClipPoolManager.Instance.PlayAudioClip(PoolType.AnBi_AudioPool, data.sweaponSound);
         //AudioClipPoolManager.Instance.PlayAudioClip(PoolType.AnBi_AudioPool, data.CharacterSounds);
-        
+        SwitchCamera.Instance.ImmediateSwitchToCamera(player.controller.ResuableDataAttack.finishSkillData.nameType,
+            player.controller.ResuableDataAttack.finishSkillData.comboType);
         ATKSet();
         SetForResetColdTime(data.coldTime);
     }
@@ -138,7 +139,7 @@ public partial class PlayerController
     public void PlayHitResource(Transform transform)
     {
         AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, hit.hitSFX);
-        VFXManager.Instance.PlayHitVFXItem(player.poolType, hit.hitVFX, transform);
+        player.fx.PlayHitVFXItem(player.poolType, hit.hitVFX, transform);
         CameraHitfeel.Instance.ShakeCamera(hit.ShakeForce);
         CameraHitfeel.Instance.PS(0.01f);
     }
@@ -177,7 +178,7 @@ public partial class PlayerController
         if (!notMoveInput())
         {
             stateMachine.State = StateAction.walk;
-            animator.SetBool(aniHarsh.HasInputID, true);
+            player.SetBoolServerRpc(aniHarsh.HasInputID, true);
             SoundClear();
         }
     }

@@ -82,7 +82,11 @@ public class SwitchCamera : MonoSigleton<SwitchCamera>
    /// <param name="combo"></param>
    public void ImmediateSwitchToCamera(nameType name, comboType combo)
    {
-      if (!cinemachinePool.ContainsKey(name)) return;
+      if (!cinemachinePool.ContainsKey(name))
+      {
+         Debug.Log($"未在字典找到 {name.ToString()}");
+         return;
+      }
       
       CinemachineStateDrivenCamera cameraStateDrivenCamera = cinemachinePool[name][combo];
 

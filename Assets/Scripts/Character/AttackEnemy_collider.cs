@@ -14,6 +14,8 @@ public class AttackEnemy_collider : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!_player.IsOwner) return;
+        
         if (other.transform.CompareTag("Enemy"))
         {
             Action<Transform> action = (t) => _player.controller.PlayHitResource(t);

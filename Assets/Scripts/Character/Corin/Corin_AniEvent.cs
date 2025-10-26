@@ -16,19 +16,50 @@ public class Corin_AniEvent : MonoBehaviour
         status = GetComponentInParent<CharacterStatus>();
     }
     
-    public void ChangeToIdle() => player.controller.stateMachine.State = StateAction.idle;
-    public void StartFinishCamera() => SwitchCamera.Instance.ImmediateSwitchToCamera(player.controller.ResuableDataAttack.finishSkillData.nameType, player.controller.ResuableDataAttack.finishSkillData.comboType);
-    public void EndFinishCamera() => SwitchCamera.Instance.UnImmediateSwitchToCamera(player.controller.ResuableDataAttack.finishSkillData.nameType, player.controller.ResuableDataAttack.finishSkillData.comboType);
+    public void ChangeToIdle()
+    {
+        if (!player.IsOwner) return;
+        player.controller.stateMachine.State = StateAction.idle;
+    }
+    public void StartFinishCamera()
+    {
+        if (!player.IsOwner) return;
+        Debug.Log("StartFinishCamera");
+        SwitchCamera.Instance.ImmediateSwitchToCamera(player.controller.ResuableDataAttack.finishSkillData.nameType,
+            player.controller.ResuableDataAttack.finishSkillData.comboType);
+    }
+    public void EndFinishCamera()
+    {
+        if (!player.IsOwner) return;
+        SwitchCamera.Instance.UnImmediateSwitchToCamera(player.controller.ResuableDataAttack.finishSkillData.nameType,
+            player.controller.ResuableDataAttack.finishSkillData.comboType);
+    }
 
     public void UnActiveSelf()
     {
-        player.gameObject.SetActive(false);
+        player.SetActiveRpc(false);
         player.DisableSwitching();
     } 
     
-    public void EnableInvisible() => status.EnableInvincibility();
-    public void DisableInvisible() => status.DisableInvincibility();
+    public void EnableInvisible()
+    {
+        if (!player.IsOwner) return;
+        status.EnableInvincibility();
+    }
+    public void DisableInvisible()
+    {
+        if (!player.IsOwner) return;
+        status.DisableInvincibility();
+    }
     
-    public void SetForAttackCanInput() => player.controller.ResuableDataAttack.canInput = true;
-    public void PlayFoot() => AudioClipPoolManager.Instance.PlayAudioClip(Character_Name.Corin, AudioClipType.foot);
+    public void SetForAttackCanInput()
+    {
+        if (!player.IsOwner) return;
+        player.controller.ResuableDataAttack.canInput = true;
+    }
+    public void PlayFoot()
+    {
+        if (!player.IsOwner) return;
+        AudioClipPoolManager.Instance.PlayAudioClip(Character_Name.Corin, AudioClipType.foot);
+    }
 }

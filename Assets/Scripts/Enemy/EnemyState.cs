@@ -1,13 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class EnemyState : MonoBehaviour, IbeHurted
+public class EnemyState : NetworkBehaviour, IbeHurted
 {
     private Enemy _enemy;
     private Animator animator;
-    public float health;
+    public NetworkVariable<float> health = new NetworkVariable<float>(100);
     public bool isDead = false;
 
     public string deadth_Front;
@@ -27,46 +28,25 @@ public class EnemyState : MonoBehaviour, IbeHurted
         animator = GetComponent<Animator>();
     }
 
+    private void Update()
+    {
+        Debug.Log($"{health.Value} enemy");
+    }
+
     public void OnHurted(Vector2 direction, float damage)
     {
-        if (isDead) return;
-        health -= damage;
-        beAttacked(direction, damage);
-        //Debug.Log(health);
+        OnHurtedServerRpc(direction, damage);
+        beAttackedServerRpc(direction, damage);
     }
 
     public void OnKilled(Vector2 direction)
     {
-        if (isDead) return;
-        
-        health = 0f;
-        _enemy.behaviorTree.enabled = false;
-        if (Vector2.Angle(transform.forward, direction) < 70f) animator.CrossFadeInFixedTime(deadth_Front, 0.14f);
-        if (Vector2.Angle(-transform.forward, direction) < 70f) animator.CrossFadeInFixedTime(deadth_Back, 0.14f);
-        else animator.CrossFadeInFixedTime(deadth_stay, 0.14f);
-        isDead = true;
-        //Debug.Log("Enemy Die");
+        OnKillServerRpc(direction);
     }
 
-    public bool CheckOnDied(float damage) => health - damage <= 0;
+    public bool CheckOnDied(float damage) => health.Value  - damage <= 0;
     
-    public bool Behaviour_CheckDie() => health <= 0;
-    
-    public void beAttacked(Vector2 direction, float damage)
-    {
-        //Debug.Log("Attacked");
-        var a = animator.GetCurrentAnimatorStateInfo(0);
-        if (!(a.IsTag("Idle") || a.IsTag("Walk") || a.IsTag("Hit"))) return;
-
-        //_enemy.behaviorTree.enabled = false;
-        animator.CrossFadeInFixedTime(Hit_ShakeAni_Name, 0.14f);
-        /*Vector2 curDirection = new Vector2(transform.forward.x, transform.forward.z).normalized;
-        var angle = Vector2.Angle(curDirection, direction);
-        if (angle > 180f) angle = 360f - angle;
-        // Debug.Log($"angle: {angle}");
-        if (angle > 90f) animator.CrossFadeInFixedTime(HitFrontAni_Name, 0.14f);
-        else if (angle <= 90f) animator.CrossFadeInFixedTime(HitBackAni_Name, 0.14f);*/
-    }
+    public bool Behaviour_CheckDie() => health.Value  <= 0;
     
     private IEnumerator SpecialHurted()
     {
@@ -74,5 +54,34 @@ public class EnemyState : MonoBehaviour, IbeHurted
         animator.CrossFadeInFixedTime("Stun_Hit_H_Front", 0.14f);
         yield return new WaitForSeconds(2f);
         _enemy.behaviorTree.enabled = true;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void OnKillServerRpc(Vector2 direction)
+    {
+        if (isDead) return;
+        Debug.Log("Enemy OnKilled");
+        health.Value = 0f;
+        _enemy.agent.enabled = false;
+        _enemy.behaviorTree.enabled = false;
+        if (Vector2.Angle(transform.forward, direction) < 70f) animator.CrossFadeInFixedTime(deadth_Front, 0.14f);
+        if (Vector2.Angle(-transform.forward, direction) < 70f) animator.CrossFadeInFixedTime(deadth_Back, 0.14f);
+        else animator.CrossFadeInFixedTime(deadth_stay, 0.14f);
+        isDead = true;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void beAttackedServerRpc(Vector2 direction, float damage)
+    {
+        var a = animator.GetCurrentAnimatorStateInfo(0);
+        if (!(a.IsTag("Idle") || a.IsTag("Walk") || a.IsTag("Hit"))) return;
+        animator.CrossFadeInFixedTime(Hit_ShakeAni_Name, 0.14f);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void OnHurtedServerRpc(Vector2 direction, float damage)
+    {
+        if (isDead) return;
+        health.Value -= damage;
     }
 }

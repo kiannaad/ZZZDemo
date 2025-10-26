@@ -1,16 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public interface IDeflectable 
 {
     public Action OnDeflected{get;set;}
-    public bool CanbeDeflected { get; set; }
-    public void EnableDeflection() => CanbeDeflected = true;
-    public void DisableDeflection() => CanbeDeflected = false;
+    public NetworkVariable<bool> CanbeDeflected { get; set; }
+    public void EnableDeflection();
+    public void DisableDeflection();
     
-    public bool CompledtedDeflection { get; set; }
-    public void EnableCompledtedDeflection() => CompledtedDeflection = true;
-    public void DisableCompledtedDeflection() => CompledtedDeflection = false;
+    public NetworkVariable<bool> CompledtedDeflection { get; set; }
+    public void EnableCompledtedDeflection();
+    public void DisableCompledtedDeflection();
 }

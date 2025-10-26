@@ -42,9 +42,9 @@ public class QTEUI : MonoBehaviour
    {
       // 必须通过 AddComponent 创建 MonoBehaviour
       m_UnregisterTrigger = gameObject.AddComponent<EventManager.UnRegisterOnDisableAndDestroyTrigger>();
-     EventManager.Instance.RegisterEvent<OnQTEStart>(OnQTEStartHandler);
+     /*EventManager.Instance.RegisterEvent<OnQTEStart>(OnQTEStartHandler);
      EventManager.Instance.RegisterEvent<OnQTEEnd>(OnQTEEndHandler);
-     EventManager.Instance.RegisterEvent<OnTimerCount>(OnTimerCountHandler);
+     EventManager.Instance.RegisterEvent<OnTimerCount>(OnTimerCountHandler);*/
    }
 
 // 具名方法定义 --------------------------------------------------

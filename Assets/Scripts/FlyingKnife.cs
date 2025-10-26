@@ -1,7 +1,5 @@
-using System.Collections;
+
 using System.Collections.Generic;
-using BehaviorDesigner.Runtime.Tasks.Unity.UnityLayerMask;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class FlyingKnife
@@ -27,7 +25,7 @@ public class FlyingKnife
         foreach (var enemy in enemies)
         {
             var Deflectable = enemy.gameObject.GetComponent<IDeflectable>().CanbeDeflected;
-            if (Deflectable && Vector2.Angle(new Vector2(player.transform.position.x - enemy.transform.position.x, player.transform.position.z - enemy.transform.position.z), 
+            if (Deflectable.Value && Vector2.Angle(new Vector2(player.transform.position.x - enemy.transform.position.x, player.transform.position.z - enemy.transform.position.z), 
                     new Vector2(enemy.transform.forward.x, enemy.transform.forward.z)) <= 85f) 
                 EnemyObj.Add(enemy.gameObject);
         }

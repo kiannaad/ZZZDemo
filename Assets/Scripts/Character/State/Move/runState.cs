@@ -27,7 +27,7 @@ public class runState : MovementState
 
     public override void OnMoveStarted(InputAction.CallbackContext context)
     {
-        player.animator.SetBool(player.aniHarsh.HasInputID, true);
+        player.SetBool(player.aniHarsh.HasInputID, true);
     }
     
 }

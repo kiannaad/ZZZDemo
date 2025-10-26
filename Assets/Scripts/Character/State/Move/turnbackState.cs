@@ -12,7 +12,7 @@ public class turnbackState : MovementState
     {
         base.Enter();
         //Debug.Log(player.animator.GetBool(player.aniHarsh.TurnBackID));
-        player.animator.SetBool(player. aniHarsh.TurnBackID, true);
+        player.SetBool(player. aniHarsh.TurnBackID, true);
     }
 
     public override void Update()
@@ -34,6 +34,6 @@ public class turnbackState : MovementState
     {
         base.Exit();
         //Debug.Log("TurenBack Exit");
-        player.animator.SetBool(player.aniHarsh.TurnBackID, false);
+        player.SetBool(player.aniHarsh.TurnBackID, false);
     }
 }

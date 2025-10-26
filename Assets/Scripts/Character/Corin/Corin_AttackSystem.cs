@@ -22,7 +22,7 @@ public class Corin_AttackSystem : MonoBehaviour
     private void Start()
     {
         _playerController = _player.controller;
-        _player.inputActions.Skill.performed += ctx =>
+        _player.InputActions.Skill.performed += ctx =>
         {
             if (ctx.interaction is HoldInteraction)
             {
@@ -30,7 +30,7 @@ public class Corin_AttackSystem : MonoBehaviour
             }
         };
 
-        _player.inputActions.Skill.canceled += context =>
+        _player.InputActions.Skill.canceled += context =>
         {
             if (context.interaction is HoldInteraction)
             {
@@ -38,7 +38,7 @@ public class Corin_AttackSystem : MonoBehaviour
             }
         };
 
-        _player.inputActions.LeftMouse.performed += ctx =>
+        _player.InputActions.LeftMouse.performed += ctx =>
         {
             if (_player.controller.ResuableDataAttack.comboCount == 3 && ctx.interaction is HoldInteraction)
             {
@@ -46,7 +46,7 @@ public class Corin_AttackSystem : MonoBehaviour
             }
         };
         
-        _player.inputActions.LeftMouse.canceled += ctx =>
+        _player.InputActions.LeftMouse.canceled += ctx =>
         {
             if (ctx.interaction is HoldInteraction)
             {

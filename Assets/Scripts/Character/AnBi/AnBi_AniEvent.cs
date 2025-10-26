@@ -16,34 +16,95 @@ public class AnBi_AniEvent : MonoBehaviour
         status = GetComponentInParent<CharacterStatus>();
     }
 
-    public void ChangeToIdle() => player.controller.stateMachine.State = StateAction.idle;
-    public void UnActiveSelf() 
+    public void ChangeToIdle()
     {
-        player.gameObject.SetActive(false);
+        if (!player.IsOwner) return;
+        player.controller.stateMachine.State = StateAction.idle;
+    }
+    public void UnActiveSelf()
+    {
+        player.SetActiveRpc(false);
         player.DisableSwitching();
     }
     
-    public void StartFinishCamera() => SwitchCamera.Instance.ImmediateSwitchToCamera(player.controller.ResuableDataAttack.finishSkillData.nameType, player.controller.ResuableDataAttack.finishSkillData.comboType);
-    public void EndFinishCamera() => SwitchCamera.Instance.UnImmediateSwitchToCamera(player.controller.ResuableDataAttack.finishSkillData.nameType, player.controller.ResuableDataAttack.finishSkillData.comboType);
-    public void EnableInvisible() => status.EnableInvincibility();
-    public void DisableInvisible() => status.DisableInvincibility();
-
-    public void FootAudioPlay() => AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, AudioClipType.foot);
-    public void Foot2AudioPlay() => AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, AudioClipType.foot2);
-    public void FootBackPlay() => AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, AudioClipType.footback);
+    public void StartFinishCamera()
+    {
+        if (!player.IsOwner) return;
+        SwitchCamera.Instance.ImmediateSwitchToCamera(player.controller.ResuableDataAttack.finishSkillData.nameType,
+            player.controller.ResuableDataAttack.finishSkillData.comboType);
+    }
     
-    public void SetForAttackCanInput() => player.controller.ResuableDataAttack.canInput = true;
+    public void EndFinishCamera()
+    {
+        if (!player.IsOwner) return;
+        SwitchCamera.Instance.UnImmediateSwitchToCamera(player.controller.ResuableDataAttack.finishSkillData.nameType,
+            player.controller.ResuableDataAttack.finishSkillData.comboType);
+    }
+    
+    public void EnableInvisible()
+    {
+        if (!player.IsOwner) return;
+        status.EnableInvincibility();
+    }
+    public void DisableInvisible()
+    {
+        if (!player.IsOwner) return;
+        status.DisableInvincibility();
+    }
 
-    public void PlayAnbi_RuQiao() => AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, AudioClipType.安比入鞘);
-    public void PlayAnbi_ShouDao() => AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, AudioClipType.安比收刀);
-    public void SetForAttackRotate() => player.controller.ResuableDataAttack.canRotate = false;
+    public void FootAudioPlay()
+    {
+        if (!player.IsOwner) return;
+        AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, AudioClipType.foot);
+    }
+    public void Foot2AudioPlay()
+    {
+        if (!player.IsOwner) return;
+        AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, AudioClipType.foot2);
+    }
+    public void FootBackPlay()
+    {
+        if (!player.IsOwner) return;
+        AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, AudioClipType.footback);
+    }
+    
+    public void SetForAttackCanInput()
+    {
+        if (!player.IsOwner) return;
+        player.controller.ResuableDataAttack.canInput = true;
+    }
 
-    public void AnBiVFX_Slash1() => VFXManager.Instance.PlayVFXItem(Character_Name.AnBi, VFXType.AnBi_slash1);
-    public void AnBiVFX_Slash2() => VFXManager.Instance.PlayVFXItem(Character_Name.AnBi, VFXType.AnBi_slash2);
+    public void PlayAnbi_RuQiao()
+    {
+        if (!player.IsOwner) return;
+        AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, AudioClipType.安比入鞘);
+    }
+    public void PlayAnbi_ShouDao()
+    {
+        if (!player.IsOwner) return;
+        AudioClipPoolManager.Instance.PlayAudioClip(player.poolType, AudioClipType.安比收刀);
+    }
+    public void SetForAttackRotate()
+    {
+        if (!player.IsOwner) return;
+        player.controller.ResuableDataAttack.canRotate = false;
+    }
+
+    public void AnBiVFX_Slash1()
+    {
+        //if (!player.IsOwner) return;
+        player.fx.PlayVFXItem(Character_Name.AnBi, VFXType.AnBi_slash1);
+    }
+    public void AnBiVFX_Slash2()
+    {
+        //if (!player.IsOwner) return;
+        player.fx.PlayVFXItem(Character_Name.AnBi, VFXType.AnBi_slash2);
+    }
 
     public void AnBiVFX_Slash13()
     {
-        VFXManager.Instance.PlayVFXItem(Character_Name.AnBi, VFXType.AnBi_slash1);
-        VFXManager.Instance.PlayVFXItem(Character_Name.AnBi, VFXType.AnBi_slash3);
+        //if (!player.IsOwner) return;
+        player.fx.PlayVFXItem(Character_Name.AnBi, VFXType.AnBi_slash1);
+        player.fx.PlayVFXItem(Character_Name.AnBi, VFXType.AnBi_slash3);
     }
 }
